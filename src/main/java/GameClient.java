@@ -21,7 +21,7 @@ public class GameClient extends JComponent
         this.screenWide=screenWide;
         this.screenHeight=screenHeight;
         this.setPreferredSize(new Dimension(screenWide,screenHeight));
-        playerTank=new Tank(100,100,Direction.LEFT);
+        playerTank=new Tank(100,100,Direction.RIGHT);
 
         new Thread(new Runnable() {
             @Override
@@ -40,27 +40,46 @@ public class GameClient extends JComponent
 
     @Override
     protected void paintComponent(Graphics g) {
-        g.drawImage(playerTank.getImage(),playerTank.getX(),playerTank.getY(),null);
+        g.setColor(Color.DARK_GRAY);
+        g.fillRect(0,0,screenWide,screenHeight);
+        playerTank.draw(g);
     }
 
     public void keyPressed(KeyEvent k){
+        boolean[] dirs=playerTank.getDirs();
         switch (k.getKeyCode())
         {
             case KeyEvent.VK_RIGHT:
-                playerTank.setDirection(Direction.RIGHT);
+                dirs[0]=true;
                 break;
             case KeyEvent.VK_DOWN:
-                playerTank.setDirection(Direction.DOWN);
+                dirs[1]=true;
                 break;
             case KeyEvent.VK_LEFT:
-                playerTank.setDirection(Direction.LEFT);
+                dirs[2]=true;
                 break;
             case KeyEvent.VK_UP:
-                playerTank.setDirection(Direction.UP);
+                dirs[3]=true;
                 break;
         }
-        playerTank.move();
     }
 
-
+    public void keyReleased(KeyEvent k){
+        boolean[] dirs=playerTank.getDirs();
+        switch (k.getKeyCode())
+        {
+            case KeyEvent.VK_RIGHT:
+                dirs[0]=false;
+                break;
+            case KeyEvent.VK_DOWN:
+                dirs[1]=false;
+                break;
+            case KeyEvent.VK_LEFT:
+                dirs[2]=false;
+                break;
+            case KeyEvent.VK_UP:
+                dirs[3]=false;
+                break;
+        }
+    }
 }

@@ -30,7 +30,8 @@ public class TankGame {
 
             @Override
             public void keyReleased(KeyEvent e) {
-
+                gameClient.keyReleased(e);
+//                System.out.print(e.getKeyCode());
             }
         });
 

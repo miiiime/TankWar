@@ -8,12 +8,13 @@ public class Tank {
     private int y;
     private int speed;
     private Direction direction;
+    private boolean[] dirs=new boolean[4];
 
     public Tank(int x, int y, Direction direction) {
         this.x = x;
         this.y = y;
         this.direction = direction;
-        this.speed=5;
+        this.speed=8;
     }
 
     public Image getImage(){
@@ -49,6 +50,10 @@ public class Tank {
         return speed;
     }
 
+    public boolean[] getDirs() {
+        return dirs;
+    }
+
     public void setX(int x) {
         this.x = x;
     }
@@ -61,23 +66,63 @@ public class Tank {
         this.direction = direction;
     }
 
+    public boolean isStop(){
+        for(boolean b:dirs) {
+            if (b)
+                return false;
+        }
+        return true;
+    }
+
+    public boolean determineDirection(){
+        Direction base=direction;
+        if(dirs[0]&&!dirs[1]&&!dirs[2]&&!dirs[3]) direction=Direction.RIGHT;
+        else if(dirs[0]&&dirs[1]&&!dirs[2]&&!dirs[3]) direction=Direction.RIGHT_DOWN;
+        else if(!dirs[0]&&dirs[1]&&!dirs[2]&&!dirs[3]) direction=Direction.DOWN;
+        else if(!dirs[0]&&dirs[1]&&dirs[2]&&!dirs[3]) direction=Direction.LEFT_DOWN;
+        else if(!dirs[0]&&!dirs[1]&&dirs[2]&&!dirs[3]) direction=Direction.LEFT;
+        else if(!dirs[0]&&!dirs[1]&&dirs[2]&&dirs[3]) direction=Direction.LEFT_UP;
+        else if(!dirs[0]&&!dirs[1]&&!dirs[2]&&dirs[3]) direction=Direction.UP;
+        else if(dirs[0]&&!dirs[1]&&!dirs[2]&&dirs[3]) direction=Direction.RIGHT_UP;
+        return base==direction;
+    }
+
     public void move(){
         switch (direction)
         {
             case RIGHT:
                 x+=speed;
                 break;
+            case RIGHT_DOWN:
+                x+=speed/2;
+                y+=speed/2;
+                break;
             case DOWN:
                 y+=speed;
+                break;
+            case LEFT_DOWN:
+                x-=speed/2;
+                y+=speed/2;
                 break;
             case LEFT:
                 x-=speed;
                 break;
+            case LEFT_UP:
+                y-=speed/2;
+                x-=speed/2;
+                break;
             case UP:
                 y-=speed;
+                break;
+            case RIGHT_UP:
+                y-=speed/2;
+                x+=speed/2;
                 break;
         }
     }
 
-
+    public void draw(Graphics g){
+        if(!isStop()&&determineDirection())move();
+        g.drawImage(getImage(),x,y,null);
+    }
 }
