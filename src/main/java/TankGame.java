@@ -3,10 +3,15 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 public class TankGame {
+    private static GameClient gameClient;
+
+    public static GameClient getGameClient() {
+        return gameClient;
+    }
 
     public static void main(String[] args) {
         JFrame frame=new JFrame();
-        GameClient gameClient=new GameClient();
+        gameClient=new GameClient();
         frame.add(gameClient);
         frame.setTitle("Tank War");
         frame.setVisible(true);

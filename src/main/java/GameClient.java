@@ -75,6 +75,29 @@ public class GameClient extends JComponent {
 
     }
 
+    public int getScreenWide() {
+        return screenWide;
+    }
+
+    public int getScreenHeight() {
+        return screenHeight;
+    }
+
+    public Tank getPlayerTank() {
+        return playerTank;
+    }
+
+    public ArrayList<Tank> getEnemyTank() {
+        return enemyTank;
+    }
+
+    public ArrayList<Wall> getWalls() {
+        return walls;
+    }
+
+    public ArrayList<GameObject> getGameObjects() {
+        return gameObjects;
+    }
 
     @Override
     protected void paintComponent(Graphics g) {

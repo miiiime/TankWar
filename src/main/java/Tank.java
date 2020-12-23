@@ -15,6 +15,7 @@ public class Tank extends GameObject{
     public Tank(int x, int y, Direction direction,Image[] image) {
         this(x, y, direction, false,image);
 
+        hitBox=new int[]{30,30,15,15};
         pmx=new int[]{18,22,24,26,28,26,24,22};
         pmy=new int[]{24,22,18,22,24,26,28,26};
     }
@@ -22,7 +23,7 @@ public class Tank extends GameObject{
     public Tank(int x, int y, Direction direction, boolean enemy,Image[] image) {
         super(x,y,image);
         this.direction = direction;
-        this.speed = 12;
+        this.speed = 6;
         this.enemy = enemy;
     }
 
@@ -76,6 +77,8 @@ public class Tank extends GameObject{
     }
 
     public void move() {
+        oldX=x;
+        oldY=y;
         switch (direction) {
             case RIGHT:
                 x += speed;
@@ -106,6 +109,33 @@ public class Tank extends GameObject{
                 x += speed / 2f;
                 break;
         }
+
+        collision();
+    }
+    //碰撞
+    public void collision(){
+        if(x<0+hitBox[2]){
+            x=hitBox[2];
+        }else if (x>TankGame.getGameClient().getScreenWide()-hitBox[2]){
+            x=TankGame.getGameClient().getScreenWide()-hitBox[2];
+        }
+        if(y<-5+hitBox[3]){
+            y=hitBox[3];
+        }else if (y>TankGame.getGameClient().getScreenHeight()+5-hitBox[3]){
+            y=TankGame.getGameClient().getScreenHeight()-hitBox[3];
+        }
+
+        for(Wall wall:TankGame.getGameClient().getWalls()){
+            if(getRectangle().intersects(wall.getRectangle())){
+                x=oldX;
+                y=oldY;
+                return;
+            }
+        }
+    }
+
+    public Rectangle getRectangle() {
+        return new Rectangle((int) x - 15, (int) y - 15, 30, 30);
     }
 
     public void draw(Graphics g) {
