@@ -11,21 +11,32 @@ public abstract class GameObject {
     protected int[] pmx;
     protected int[] pmy;
     protected int[] hitBox;
-
+    protected boolean alive;
+    protected int health;
 
     protected int width;
     protected int height;
 
 
-    public GameObject(int x, int y, Image[] image) {
+    public GameObject(int x, int y,int health, Image[] image) {
         this.x = x;
         this.y = y;
         this.image = image;
 
+        alive=true;
+        this.health=health;
+
         width = image[0].getWidth(null);
         height = image[0].getHeight(null);
         hitBox= new int[]{width, height, width/2, height/2};
+        setPicMid();
+    }
 
+    public boolean isAlive() {
+        return alive;
+    }
+
+    protected void setPicMid(){
         pmx = new int[image.length];
         for (int i = 0; i < pmx.length; i++) {
             if (pmx[i] == 0)

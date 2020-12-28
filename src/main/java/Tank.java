@@ -6,25 +6,36 @@ import java.awt.*;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
-public class Tank extends GameObject{
-    private int speed;
-    private Direction direction;
-    private boolean[] dirs = new boolean[4];
-    private boolean enemy;
+public class Tank extends GameObject {
+    protected int speed;
+    protected Direction direction;
+    private boolean[] dirs = new boolean[5];
+    protected boolean enemy;
 
-    public Tank(int x, int y, Direction direction,Image[] image) {
-        this(x, y, direction, false,image);
+    public Tank(int x, int y, Direction direction, Image[] image) {
+        this(x, y, direction,1, false, image);
 
-        hitBox=new int[]{30,30,15,15};
-        pmx=new int[]{18,22,24,26,28,26,24,22};
-        pmy=new int[]{24,22,18,22,24,26,28,26};
+        hitBox = new int[]{30, 30, 15, 15};
     }
 
-    public Tank(int x, int y, Direction direction, boolean enemy,Image[] image) {
-        super(x,y,image);
+    public Tank(int x, int y, Direction direction, boolean enemy, Image[] image) {
+        this(x, y, direction, 1,enemy, image);
+    }
+
+    public Tank(int x, int y, Direction direction,int health, boolean enemy, Image[] image) {
+        super(x, y,health, image);
         this.direction = direction;
         this.speed = 6;
         this.enemy = enemy;
+    }
+
+    protected void setPicMid() {
+        if (enemy || this instanceof Bullet)
+            super.setPicMid();
+        else {
+            pmx = new int[]{18, 22, 24, 26, 28, 26, 24, 22};
+            pmy = new int[]{24, 22, 18, 22, 24, 26, 28, 26};
+        }
     }
 
     public double getX() {
@@ -43,6 +54,10 @@ public class Tank extends GameObject{
         return dirs;
     }
 
+    public boolean isEnemy() {
+        return enemy;
+    }
+
     public void setX(int x) {
         this.x = x;
     }
@@ -56,10 +71,15 @@ public class Tank extends GameObject{
     }
 
     public boolean isStop() {
-        for (boolean b : dirs) {
-            if (b)
+        for (int i = 0; i < 4; i++) {
+            if (dirs[i])
                 return false;
         }
+
+//      for (boolean b : dirs) {
+//            if (b)
+//                return false;
+//        }
         return true;
     }
 
@@ -77,74 +97,117 @@ public class Tank extends GameObject{
     }
 
     public void move() {
-        oldX=x;
-        oldY=y;
+        oldX = x;
+        oldY = y;
         switch (direction) {
             case RIGHT:
-                x += speed;
+                x += speed / 2f;
+                collision();
+                x += speed / 2f;
                 break;
             case RIGHT_DOWN:
                 x += speed / 2f;
+                collision();
                 y += speed / 2f;
                 break;
             case DOWN:
-                y += speed;
+                y += speed / 2f;
+                collision();
+                y += speed / 2f;
                 break;
             case LEFT_DOWN:
                 x -= speed / 2f;
+                collision();
                 y += speed / 2f;
                 break;
             case LEFT:
-                x -= speed;
+                x -= speed / 2f;
+                collision();
+                x -= speed / 2f;
                 break;
             case LEFT_UP:
                 y -= speed / 2f;
+                collision();
                 x -= speed / 2f;
                 break;
             case UP:
-                y -= speed;
+                y -= speed / 2f;
+                collision();
+                y -= speed / 2f;
                 break;
             case RIGHT_UP:
                 y -= speed / 2f;
+                collision();
                 x += speed / 2f;
                 break;
         }
 
         collision();
     }
+
     //碰撞
-    public void collision(){
-        if(x<0+hitBox[2]){
-            x=hitBox[2];
-        }else if (x>TankGame.getGameClient().getScreenWide()-hitBox[2]){
-            x=TankGame.getGameClient().getScreenWide()-hitBox[2];
+    public boolean collisionBound() {
+        boolean collision = false;
+        if (x < 0 + hitBox[2]) {
+            x = hitBox[2];
+            collision = true;
+        } else if (x > TankGame.getGameClient().getScreenWide() - hitBox[2]) {
+            x = TankGame.getGameClient().getScreenWide() - hitBox[2];
+            collision = true;
         }
-        if(y<-5+hitBox[3]){
-            y=hitBox[3];
-        }else if (y>TankGame.getGameClient().getScreenHeight()+5-hitBox[3]){
-            y=TankGame.getGameClient().getScreenHeight()-hitBox[3];
+        if (y < -5 + hitBox[3]) {
+            y =-5 + hitBox[3];
+            collision = true;
+        } else if (y > TankGame.getGameClient().getScreenHeight() + 5 - hitBox[3]) {
+            y = TankGame.getGameClient().getScreenHeight()+5 - hitBox[3];
+            collision = true;
+        }
+        return collision;
+    }
+
+    public void collision() {
+        if (collisionBound()) {
+            return;
         }
 
-        for(Wall wall:TankGame.getGameClient().getWalls()){
-            if(getRectangle().intersects(wall.getRectangle())){
-                x=oldX;
-                y=oldY;
+        for (GameObject object : TankGame.getGameClient().getGameObjects()) {
+            if (object != this && !(object instanceof Bullet) && getRectangle().intersects(object.getRectangle())) {
+                x = oldX;
+                y = oldY;
                 return;
             }
         }
+
+        oldX = x;
+        oldY = y;
     }
 
     public Rectangle getRectangle() {
         return new Rectangle((int) x - 15, (int) y - 15, 30, 30);
     }
 
+    public void fire() {
+        Bullet bullet = new Bullet((int) x, (int) y, direction, enemy, TankGame.getGameClient().getMissileImage());
+
+        TankGame.getGameClient().addGameObject(bullet);
+    }
+
+    public void hitten(){
+        hitten(1);
+    }
+
+    public void hitten(int damage){
+        health-=damage;
+        if (health<0)
+            health=0;
+        if (health==0)
+            alive=false;
+    }
+
     public void draw(Graphics g) {
-        if (!isStop()&&determineDirection()) {
+        if (!isStop() && determineDirection()) {
             move();
         }
-//        if(!enemy)
-//        System.out.print(direction.ordinal());
         g.drawImage(image[direction.ordinal()], (int) (x - pmx[direction.ordinal()]), (int) (y - pmy[direction.ordinal()]), null);
-//        g.drawImage(getImage(), (int) x, (int) y, null);
     }
 }

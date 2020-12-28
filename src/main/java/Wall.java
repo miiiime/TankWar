@@ -10,7 +10,7 @@ public class Wall extends GameObject {
 
 
     public Wall(int x, int y, boolean horizontal, int bricks, Image[] image) {
-        super(x, y, image);
+        super(x, y,-1, image);
         hitBox=new int[]{30,30,15,15};
         this.horizontal = horizontal;
         this.bricks = bricks;
