@@ -6,10 +6,10 @@ import java.awt.*;
 public class Bullet extends Tank {
 
 
-    public Bullet(int x, int y, Direction direction, boolean enemy, Image[] image) {
-        super(x, y, direction, enemy, image);
+    public Bullet(int x, int y, Direction direction, int team, Image[] image) {
+        super(x, y, direction, team, image);
         speed=15;
-        hitBox=new int[]{6,6,3,3};
+        hitBox=new int[]{15,15,7,7};
     }
 
     public void move() {
@@ -62,24 +62,30 @@ public class Bullet extends Tank {
         return collision;
     }
 
-    public void collision(){
-        if(collisionBound()){
+    public boolean collision(){
+        boolean isCollision = collisionBound();
+        if (!isCollision)
+            isCollision = collisionObject();
+        if (isCollision) {
             alive=false;
-            return;
         }
 
-        for(GameObject object:TankGame.getGameClient().getGameObjects()){
-            if(object instanceof Tank && enemy==((Tank) object).isEnemy())
-                continue;
-            if(object!=this && getRectangle().intersects(object.getRectangle())){
-                alive=false;
-                if(object instanceof Tank &&object.isAlive())
-                    ((Tank) object).hitten(1);
-                return;
-            }
-        }
+        return isCollision;
     }
 
+    public boolean collisionObject() {
+        for(GameObject object:TankGame.getGameClient().getGameObjects()){
+            if(object instanceof Tank && team==((Tank) object).getTeam())
+                continue;
+            if(object!=this && getRectangle().intersects(object.getRectangle())){
+                if(object instanceof Tank &&object.isAlive()) {
+                    ((Tank) object).hitten(1);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
     public void draw(Graphics g) {
         if(!alive)return;
 

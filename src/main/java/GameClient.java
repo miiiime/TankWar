@@ -13,7 +13,7 @@ public class GameClient extends JComponent {
     private int screenHeight;
     private boolean stop;
 
-    Tank playerTank;
+    private PlayerTank playerTank;
 
     private ArrayList<GameObject> gameObjects=new ArrayList<>();
     private ArrayList<GameObject> newObjects=new ArrayList<>();
@@ -59,10 +59,10 @@ public class GameClient extends JComponent {
 
 
 
-        playerTank = new Tank(50, 405, Direction.RIGHT,iTankImage);
+        playerTank = new PlayerTank(50, 405, Direction.RIGHT,iTankImage);
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 5; j++) {
-                gameObjects.add(new Tank(600 + i * 50, 200 + j * 50, Direction.LEFT, true,eTankImage));
+                gameObjects.add(new EnemyTank(600 + i * 50, 200 + j * 50, Direction.LEFT, 1,eTankImage));
             }
         }
 
@@ -113,16 +113,24 @@ public class GameClient extends JComponent {
     protected void paintComponent(Graphics g) {
         g.setColor(Color.DARK_GRAY);
         g.fillRect(0, 0, screenWide, screenHeight);
+        g.setColor(Color.WHITE);
+        g.drawString("HP："+playerTank.getHealth(),0,10);
         for (GameObject gameObjects : gameObjects) {
             gameObjects.draw(g);
         }
 
         addGameObject();
 
+        boolean out_of_enemy=false;
         Iterator<GameObject> iterator=gameObjects.iterator();
         while (iterator.hasNext()){
             if(!iterator.next().isAlive())
                 iterator.remove();
+            else if(iterator.next() instanceof EnemyTank)
+                out_of_enemy=true;
+        }
+        if(out_of_enemy){
+//            reset();
         }
     }
 
@@ -163,9 +171,9 @@ public class GameClient extends JComponent {
                 dirs[3] = false;
                 break;
             case KeyEvent.VK_CONTROL:
-                if (dirs[4]){
-                    playerTank.fire();
-                }
+//                if (dirs[4]){
+//                    playerTank.fire();
+//                }
                 dirs[4] = false;
                 break;
         }

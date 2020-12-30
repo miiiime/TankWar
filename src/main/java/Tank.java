@@ -9,41 +9,24 @@ import java.util.Arrays;
 public class Tank extends GameObject {
     protected int speed;
     protected Direction direction;
-    private boolean[] dirs = new boolean[5];
-    protected boolean enemy;
+    protected boolean[] dirs = new boolean[5];
+    protected int team;
 
     public Tank(int x, int y, Direction direction, Image[] image) {
-        this(x, y, direction, 1, false, image);
+        this(x, y, direction, 1, 0, image);
 
         hitBox = new int[]{30, 30, 15, 15};
     }
 
-    public Tank(int x, int y, Direction direction, boolean enemy, Image[] image) {
-        this(x, y, direction, 1, enemy, image);
+    public Tank(int x, int y, Direction direction, int team, Image[] image) {
+        this(x, y, direction, 1, team, image);
     }
 
-    public Tank(int x, int y, Direction direction, int health, boolean enemy, Image[] image) {
+    public Tank(int x, int y, Direction direction, int health, int team, Image[] image) {
         super(x, y, health, image);
         this.direction = direction;
         this.speed = 6;
-        this.enemy = enemy;
-    }
-
-    protected void setPicMid() {
-        if (enemy || this instanceof Bullet)
-            super.setPicMid();
-        else {
-            pmx = new int[]{18, 22, 24, 26, 28, 26, 24, 22};
-            pmy = new int[]{24, 22, 18, 22, 24, 26, 28, 26};
-        }
-    }
-
-    public double getX() {
-        return x;
-    }
-
-    public double getY() {
-        return y;
+        this.team = team;
     }
 
     public int getSpeed() {
@@ -54,33 +37,25 @@ public class Tank extends GameObject {
         return dirs;
     }
 
-    public boolean isEnemy() {
-        return enemy;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public void setY(int y) {
-        this.y = y;
+    public int getTeam() {
+        return team;
     }
 
     public void setDirection(Direction direction) {
         this.direction = direction;
     }
 
-    public boolean isStop() {
+    public boolean control() {
         for (int i = 0; i < 4; i++) {
-            if (dirs[i])
-                return false;
+            if (dirs[i]) {
+                if (state == 0)
+                    state = 1;
+                return true;
+            }
         }
-
-//      for (boolean b : dirs) {
-//            if (b)
-//                return false;
-//        }
-        return true;
+        if (state == 1)
+            state = 0;
+        return false;
     }
 
     public boolean determineDirection() {
@@ -146,6 +121,20 @@ public class Tank extends GameObject {
     }
 
     //碰撞
+    public boolean collision() {
+        boolean isCollision = collisionBound();
+        if (!isCollision)
+            isCollision = collisionObject();
+        if (isCollision) {
+            x = oldX;
+            y = oldY;
+        }
+        oldX = x;
+        oldY = y;
+
+        return isCollision;
+    }
+
     public boolean collisionBound() {
         boolean collision = false;
         if (x < 0 + hitBox[2]) {
@@ -165,38 +154,28 @@ public class Tank extends GameObject {
         return collision;
     }
 
-    public void collision() {
-        if (collisionBound()) {
-            return;
-        }
-
+    public boolean collisionObject() {
         for (GameObject object : TankGame.getGameClient().getGameObjects()) {
             if (object != this && !(object instanceof Bullet) && getRectangle().intersects(object.getRectangle())) {
-                x = oldX;
-                y = oldY;
-                return;
+                return true;
             }
         }
-
-        oldX = x;
-        oldY = y;
+        return false;
     }
 
     public Rectangle getRectangle() {
-        return new Rectangle((int) x - 15, (int) y - 15, 30, 30);
+        return new Rectangle((int) x - hitBox[2], (int) y - hitBox[3], hitBox[0], hitBox[1]);
     }
 
     public void fire() {
-        if (delay == 0) {
-
-            if (state == 0) {
-                state = 3;
-            } else if (state == 3) {
-                Bullet bullet = new Bullet((int) x, (int) y, direction, enemy, TankGame.getGameClient().getMissileImage());
-                TankGame.getGameClient().addGameObject(bullet);
-                state = 0;
-            }
-            delay += 10;
+        if (state == 0 || state == 1) {
+            state = 3;
+            ac_delay += 5;
+        } else if (state == 3) {
+            Bullet bullet = new Bullet((int) x, (int) y, direction, team, TankGame.getGameClient().getMissileImage());
+            TankGame.getGameClient().addGameObject(bullet);
+            state = 0;
+            ac_delay = 5;
         }
     }
 
@@ -213,15 +192,18 @@ public class Tank extends GameObject {
     }
 
     public void draw(Graphics g) {
-        if (delay == 0) {
-            if (state == 0 && !isStop() && determineDirection())
+        if (ac_delay < 0) ac_delay = 0;
+        if (ac_delay == 0) {
+            if (state == 0 || state == 1) {
+                control();
+                if (dirs[4])
+                    fire();
+            }
+            if (state == 1 && determineDirection())
                 move();
             if (state == 3)
                 fire();
-        } else if (delay > 0) {
-            delay--;
-        }
-
+        } else ac_delay--;
         g.drawImage(image[direction.ordinal()], (int) (x - pmx[direction.ordinal()]), (int) (y - pmy[direction.ordinal()]), null);
     }
 }

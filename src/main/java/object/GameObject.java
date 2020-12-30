@@ -13,14 +13,39 @@ public abstract class GameObject {
     protected int[] hitBox;
     protected boolean alive;
     protected int health;
-    protected int delay;
+    protected int ac_delay;
+    protected int ai_delay;
     protected int state;
 
     protected int width;
     protected int height;
 
+    public double getX() {
+        return x;
+    }
+    public void setX(int x) {
+        this.x = x;
+    }
 
-    public GameObject(int x, int y,int health, Image[] image) {
+    public double getY() {
+        return y;
+    }
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public int getHealth() {
+        return health;
+    }
+    public void setHealth(int health) {
+        this.health = health;
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
+
+    public GameObject(int x, int y, int health, Image[] image) {
         this.x = x;
         this.y = y;
         this.image = image;
@@ -31,10 +56,6 @@ public abstract class GameObject {
         height = image[0].getHeight(null);
         hitBox= new int[]{width, height, width/2, height/2};
         setPicMid();
-    }
-
-    public boolean isAlive() {
-        return alive;
     }
 
     protected void setPicMid(){
@@ -53,7 +74,8 @@ public abstract class GameObject {
     protected  void setBase(int health){
         alive=true;
         this.health=health;
-        delay=0;
+        ac_delay=0;
+        ai_delay=0;
         state=0;
     }
 
