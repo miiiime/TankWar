@@ -5,6 +5,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 
 public class GameClient extends JComponent {
@@ -15,6 +16,7 @@ public class GameClient extends JComponent {
     Tank playerTank;
 
     private ArrayList<GameObject> gameObjects=new ArrayList<>();
+    private ArrayList<GameObject> newObjects=new ArrayList<>();
     private Image[] missileImage=new Image[8];
 
     GameClient() {
@@ -75,10 +77,16 @@ public class GameClient extends JComponent {
 
     }
 
-    public void addGameObject(GameObject object){
-        gameObjects.add(object);
+    public void addGameObject(){
+        gameObjects.addAll(newObjects);
+        newObjects.removeAll(newObjects);
+
         gameObjects.remove(playerTank);
         gameObjects.add(playerTank);
+    }
+
+    public void addGameObject(GameObject object){
+        newObjects.add(object);
     }
 
     public int getScreenWide() {
@@ -109,6 +117,8 @@ public class GameClient extends JComponent {
             gameObjects.draw(g);
         }
 
+        addGameObject();
+
         Iterator<GameObject> iterator=gameObjects.iterator();
         while (iterator.hasNext()){
             if(!iterator.next().isAlive())
@@ -132,8 +142,6 @@ public class GameClient extends JComponent {
                 dirs[3] = true;
                 break;
             case KeyEvent.VK_CONTROL:
-                if(!dirs[4])
-                    playerTank.fire();
                 dirs[4] = true;
                 break;
         }
@@ -155,6 +163,9 @@ public class GameClient extends JComponent {
                 dirs[3] = false;
                 break;
             case KeyEvent.VK_CONTROL:
+                if (dirs[4]){
+                    playerTank.fire();
+                }
                 dirs[4] = false;
                 break;
         }

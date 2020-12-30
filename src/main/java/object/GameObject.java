@@ -13,6 +13,8 @@ public abstract class GameObject {
     protected int[] hitBox;
     protected boolean alive;
     protected int health;
+    protected int delay;
+    protected int state;
 
     protected int width;
     protected int height;
@@ -23,8 +25,7 @@ public abstract class GameObject {
         this.y = y;
         this.image = image;
 
-        alive=true;
-        this.health=health;
+        setBase(health);
 
         width = image[0].getWidth(null);
         height = image[0].getHeight(null);
@@ -47,6 +48,13 @@ public abstract class GameObject {
             if (pmy[i] == 0)
                 pmy[i] = width / 2;
         }
+    }
+
+    protected  void setBase(int health){
+        alive=true;
+        this.health=health;
+        delay=0;
+        state=0;
     }
 
     public Rectangle getRectangle() {

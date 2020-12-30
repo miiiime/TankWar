@@ -13,17 +13,17 @@ public class Tank extends GameObject {
     protected boolean enemy;
 
     public Tank(int x, int y, Direction direction, Image[] image) {
-        this(x, y, direction,1, false, image);
+        this(x, y, direction, 1, false, image);
 
         hitBox = new int[]{30, 30, 15, 15};
     }
 
     public Tank(int x, int y, Direction direction, boolean enemy, Image[] image) {
-        this(x, y, direction, 1,enemy, image);
+        this(x, y, direction, 1, enemy, image);
     }
 
-    public Tank(int x, int y, Direction direction,int health, boolean enemy, Image[] image) {
-        super(x, y,health, image);
+    public Tank(int x, int y, Direction direction, int health, boolean enemy, Image[] image) {
+        super(x, y, health, image);
         this.direction = direction;
         this.speed = 6;
         this.enemy = enemy;
@@ -156,10 +156,10 @@ public class Tank extends GameObject {
             collision = true;
         }
         if (y < -5 + hitBox[3]) {
-            y =-5 + hitBox[3];
+            y = -5 + hitBox[3];
             collision = true;
         } else if (y > TankGame.getGameClient().getScreenHeight() + 5 - hitBox[3]) {
-            y = TankGame.getGameClient().getScreenHeight()+5 - hitBox[3];
+            y = TankGame.getGameClient().getScreenHeight() + 5 - hitBox[3];
             collision = true;
         }
         return collision;
@@ -187,27 +187,41 @@ public class Tank extends GameObject {
     }
 
     public void fire() {
-        Bullet bullet = new Bullet((int) x, (int) y, direction, enemy, TankGame.getGameClient().getMissileImage());
+        if (delay == 0) {
 
-        TankGame.getGameClient().addGameObject(bullet);
+            if (state == 0) {
+                state = 3;
+            } else if (state == 3) {
+                Bullet bullet = new Bullet((int) x, (int) y, direction, enemy, TankGame.getGameClient().getMissileImage());
+                TankGame.getGameClient().addGameObject(bullet);
+                state = 0;
+            }
+            delay += 10;
+        }
     }
 
-    public void hitten(){
+    public void hitten() {
         hitten(1);
     }
 
-    public void hitten(int damage){
-        health-=damage;
-        if (health<0)
-            health=0;
-        if (health==0)
-            alive=false;
+    public void hitten(int damage) {
+        health -= damage;
+        if (health < 0)
+            health = 0;
+        if (health == 0)
+            alive = false;
     }
 
     public void draw(Graphics g) {
-        if (!isStop() && determineDirection()) {
-            move();
+        if (delay == 0) {
+            if (state == 0 && !isStop() && determineDirection())
+                move();
+            if (state == 3)
+                fire();
+        } else if (delay > 0) {
+            delay--;
         }
+
         g.drawImage(image[direction.ordinal()], (int) (x - pmx[direction.ordinal()]), (int) (y - pmy[direction.ordinal()]), null);
     }
 }
