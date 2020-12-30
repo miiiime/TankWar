@@ -17,17 +17,17 @@ public class Wall extends GameObject {
     }
 
     public Rectangle getRectangle() {
-        return horizontal ? new Rectangle((int) x - hitBox[2], (int) y - hitBox[3], (width * (bricks-2))+(hitBox[0]*2), hitBox[1]) :
-                new Rectangle((int) x - hitBox[2], (int) y - hitBox[3], hitBox[0], (height * (bricks-2))+(hitBox[1]*2));
+        return horizontal ? new Rectangle((int) x - hitBox[2], (int) y - hitBox[3], (hitBox[0] * bricks), hitBox[1]) :
+                new Rectangle((int) x - hitBox[2], (int) y - hitBox[3], hitBox[0], (hitBox[1] * bricks));
     }
 
     public void draw(Graphics g) {
         if (horizontal) {
             for (int i = 0; i < bricks; i++)
-                g.drawImage(image[0], (int) x - pmx[0] + i * width, (int) y - pmy[0], null);
+                g.drawImage(image[0], (int) x - pmx[0] + i * hitBox[0], (int) y - pmy[0], null);
         } else {
             for (int i = 0; i < bricks; i++)
-                g.drawImage(image[0], (int) x - pmx[0], (int) y - pmy[0] + i * height, null);
+                g.drawImage(image[0], (int) x - pmx[0], (int) y - pmy[0] + i * hitBox[1], null);
         }
 
     }

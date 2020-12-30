@@ -57,8 +57,9 @@ public class EnemyTank extends Tank {
     }
 
     private void ai() {
+        if(state==3)dirs[4]=false;
         if (ai_delay < 0) ai_delay = 0;
-        if (ai_delay == 0) {    //=======
+        if (ai_delay == 0) {    //==============
             Random random = new Random();
 
             if (state == 0) {
@@ -68,11 +69,11 @@ public class EnemyTank extends Tank {
                 state = 0;
                 ai_delay += random.nextInt(10) + 1;
                 if (search()) {
-                    fire();
-                    ai_delay += 15;
+                    control(8);
+                    ai_delay+=10;
                 }
             }
-        } else ai_delay--;      //=======
+        } else ai_delay--;      //==============
     }
 
     private void wander(int delay) {

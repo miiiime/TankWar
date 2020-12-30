@@ -1,13 +1,16 @@
 import object.Direction;
 import object.GameObject;
+import object.MoveObject;
 
 import java.awt.*;
 
-public class Bullet extends Tank {
-
+public class Bullet extends MoveObject {
+    int team;
 
     public Bullet(int x, int y, Direction direction, int team, Image[] image) {
-        super(x, y, direction, team, image);
+        super(x, y, 1, image);
+        this.team=team;
+        super.direction=direction;
         speed=15;
         hitBox=new int[]{15,15,7,7};
     }
@@ -47,21 +50,6 @@ public class Bullet extends Tank {
         collision();
     }
 
-    public boolean collisionBound(){
-        boolean collision=false;
-        if(x<0){
-            collision=true;
-        }else if (x>TankGame.getGameClient().getScreenWide()){
-            collision=true;
-        }
-        if(y<-5){
-            collision=true;
-        }else if (y>TankGame.getGameClient().getScreenHeight()+5){
-            collision=true;
-        }
-        return collision;
-    }
-
     public boolean collision(){
         boolean isCollision = collisionBound();
         if (!isCollision)
@@ -73,18 +61,48 @@ public class Bullet extends Tank {
         return isCollision;
     }
 
+    public boolean collisionBound() {
+        int[] play_zone=TankGame.getGameClient().getPlay_zone();
+        if (x < play_zone[0]) {
+            return true;
+        } else if (x > play_zone[0] + play_zone[2]) {
+            return true;
+        }
+        if (y < + play_zone[1]) {
+            return true;
+        } else if (y > play_zone[1] + play_zone[3]) {
+            return true;
+        }
+        return false;
+    }
+
     public boolean collisionObject() {
         for(GameObject object:TankGame.getGameClient().getGameObjects()){
             if(object instanceof Tank && team==((Tank) object).getTeam())
                 continue;
             if(object!=this && getRectangle().intersects(object.getRectangle())){
-                if(object instanceof Tank &&object.isAlive()) {
-                    ((Tank) object).hitten(1);
+                if(object.isAlive()) {
+                    if(object instanceof Tank)
+                        ((Tank) object).hitten(1);
+                    else if(object instanceof Bullet)
+                        ((Bullet) object).hitten(1);
                 }
                 return true;
             }
         }
         return false;
+    }
+
+    public void hitten() {
+        hitten(1);
+    }
+
+    public void hitten(int damage) {
+        health -= damage;
+        if (health < 0)
+            health = 0;
+        if (health == 0)
+            alive = false;
     }
     public void draw(Graphics g) {
         if(!alive)return;

@@ -5,7 +5,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 
 public class GameClient extends JComponent {
@@ -15,9 +14,14 @@ public class GameClient extends JComponent {
 
     private PlayerTank playerTank;
 
-    private ArrayList<GameObject> gameObjects=new ArrayList<>();
-    private ArrayList<GameObject> newObjects=new ArrayList<>();
-    private Image[] missileImage=new Image[8];
+    private ArrayList<GameObject> gameObjects = new ArrayList<>();
+    private ArrayList<GameObject> newObjects = new ArrayList<>();
+    private int[] play_zone;
+    public static final int SPACE=30;
+    public static final int HALF_SPACE=15;
+    private Image[] brickImage;
+    private Image[] eTankImage;
+    private Image[] missileImage;
 
     GameClient() {
         this(800, 600);
@@ -27,6 +31,7 @@ public class GameClient extends JComponent {
         this.screenWide = screenWide;
         this.screenHeight = screenHeight;
         this.setPreferredSize(new Dimension(screenWide, screenHeight));
+        play_zone=new int[]{0,0,screenWide,screenHeight};
 
         init();
 
@@ -44,40 +49,27 @@ public class GameClient extends JComponent {
             }
         }).start();
     }
+
     //物件建構
     public void init() {
-        Image[] brickImage=new Image[]{Tools.getImage("brick.png")};
-        Image[] iTankImage=new Image[8];
-        Image[] eTankImage=new Image[8];
+        brickImage = new Image[]{Tools.getImage("brick.png")};
+        Image[] iTankImage = new Image[8];
+        eTankImage = new Image[8];
+        missileImage = new Image[8];
 
-        String[] sub={"R.png","RD.png","D.png","LD.png","L.png","LU.png","U.png","RU.png"};
-        for(int i=0;i<iTankImage.length;i++){
-            iTankImage[i]=Tools.getImage("itank"+sub[i]);
-            eTankImage[i]=Tools.getImage("etank"+sub[i]);
-            missileImage[i]=Tools.getImage("missile"+sub[i]);
+        String[] sub = {"R.png", "RD.png", "D.png", "LD.png", "L.png", "LU.png", "U.png", "RU.png"};
+        for (int i = 0; i < iTankImage.length; i++) {
+            iTankImage[i] = Tools.getImage("itank" + sub[i]);
+            eTankImage[i] = Tools.getImage("etank" + sub[i]);
+            missileImage[i] = Tools.getImage("missile" + sub[i]);
         }
 
 
-
-        playerTank = new PlayerTank(50, 405, Direction.RIGHT,iTankImage);
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 5; j++) {
-                gameObjects.add(new EnemyTank(600 + i * 50, 200 + j * 50, Direction.LEFT, 1,eTankImage));
-            }
-        }
-
-        gameObjects.add(new Wall(160,140,false,3,brickImage));
-        gameObjects.add(new Wall(160,396,false,3,brickImage));
-        gameObjects.add(new Wall(0,108,true,9,brickImage));
-        gameObjects.add(new Wall(0,492,true,9,brickImage));
-        gameObjects.add(new Wall(480,204,false,7,brickImage));
-
-
-        gameObjects.add(playerTank);
-
+        playerTank = new PlayerTank(0, 0, Direction.RIGHT, iTankImage);
+        reset(-1);
     }
 
-    public void addGameObject(){
+    public void addGameObject() {
         gameObjects.addAll(newObjects);
         newObjects.removeAll(newObjects);
 
@@ -85,17 +77,16 @@ public class GameClient extends JComponent {
         gameObjects.add(playerTank);
     }
 
-    public void addGameObject(GameObject object){
-        newObjects.add(object);
-    }
+    public void addGameObject(GameObject object) {newObjects.add(object);}
 
     public int getScreenWide() {
         return screenWide;
     }
-
     public int getScreenHeight() {
         return screenHeight;
     }
+
+    public int[] getPlay_zone(){return play_zone;}
 
     public Tank getPlayerTank() {
         return playerTank;
@@ -112,27 +103,77 @@ public class GameClient extends JComponent {
     @Override
     protected void paintComponent(Graphics g) {
         g.setColor(Color.DARK_GRAY);
-        g.fillRect(0, 0, screenWide, screenHeight);
-        g.setColor(Color.WHITE);
-        g.drawString("HP："+playerTank.getHealth(),0,10);
+        g.fillRect(play_zone[0], play_zone[1], play_zone[2], play_zone[3]);
+
         for (GameObject gameObjects : gameObjects) {
             gameObjects.draw(g);
         }
 
         addGameObject();
 
-        boolean out_of_enemy=false;
-        Iterator<GameObject> iterator=gameObjects.iterator();
-        while (iterator.hasNext()){
-            if(!iterator.next().isAlive())
+        Iterator<GameObject> iterator = gameObjects.iterator();
+        while (iterator.hasNext()) {
+            if (!iterator.next().isAlive())
                 iterator.remove();
-            else if(iterator.next() instanceof EnemyTank)
-                out_of_enemy=true;
         }
-        if(out_of_enemy){
-//            reset();
+
+        checkGameStatus();
+        g.setColor(Color.WHITE);
+        g.drawString("HP：" + playerTank.getHealth(), 0, 10);
+    }
+
+    private void checkGameStatus() {
+        boolean out_of_enemy = true;
+
+        for (GameObject gameObjects : gameObjects) {
+            if (gameObjects instanceof EnemyTank) {
+                out_of_enemy = false;
+                break;
+            }
+        }
+
+        if (out_of_enemy) {
+            reset(0);
         }
     }
+
+    public void reset(int level) {
+        playerTank.plusHealth(1);
+
+        gameObjects.removeAll(gameObjects);
+        gameObjects.add(playerTank);
+
+        switch (level) {
+            case -1:
+                playerTank.setHealth(2);
+                playerTank.setAlive(true);
+            case 0: {
+                play_zone=new int[]{10,0,26*SPACE,20*SPACE};
+
+                gameObjects.add(new Wall(get_place_x(5), get_place_y(4), false, 3, brickImage));
+                gameObjects.add(new Wall(get_place_x(5),  get_place_y(13), false, 3, brickImage));
+                gameObjects.add(new Wall(get_place_x(0),  get_place_y(3), true, 9, brickImage));
+                gameObjects.add(new Wall(get_place_x(0),  get_place_y(16), true, 9, brickImage));
+                gameObjects.add(new Wall(get_place_x(16),  get_place_y(7), false, 6, brickImage));
+                gameObjects.add(new Wall(get_place_x(-1), get_place_y(0), false, 26, brickImage));
+                gameObjects.add(new Wall(get_place_x(26), get_place_y(0), false, 26, brickImage));
+
+                playerTank.tp(2*SPACE,14*SPACE,Direction.RIGHT);
+                for (int i = 0; i < 3; i++) {
+                    for (int j = 0; j < 4; j++) {
+                        gameObjects.add(new EnemyTank(get_place_x(18) + i * SPACE * 3, get_place_y(5) + j * SPACE * 3, Direction.LEFT, 1, eTankImage));
+                    }
+                }
+            }break;
+            case 1:
+                break;
+        }
+
+    }
+
+    public int get_place_x(int block){return play_zone[0]+HALF_SPACE+block*SPACE;}
+    public int get_place_y(int block){return play_zone[1]+HALF_SPACE+block*SPACE;}
+
 
     public void keyPressed(KeyEvent k) {
         boolean[] dirs = playerTank.getDirs();
@@ -150,7 +191,8 @@ public class GameClient extends JComponent {
                 dirs[3] = true;
                 break;
             case KeyEvent.VK_CONTROL:
-                dirs[4] = true;
+                if(!dirs[4]&&!playerTank.isAlive()){reset(-1);}
+                else dirs[4] = true;
                 break;
         }
     }
@@ -171,9 +213,6 @@ public class GameClient extends JComponent {
                 dirs[3] = false;
                 break;
             case KeyEvent.VK_CONTROL:
-//                if (dirs[4]){
-//                    playerTank.fire();
-//                }
                 dirs[4] = false;
                 break;
         }

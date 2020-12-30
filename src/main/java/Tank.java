@@ -1,16 +1,27 @@
 import object.Direction;
 import object.GameObject;
+import object.MoveObject;
 
-import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
-public class Tank extends GameObject {
-    protected int speed;
-    protected Direction direction;
+public class Tank extends MoveObject {
     protected boolean[] dirs = new boolean[5];
     protected int team;
+
+    public boolean[] getDirs() {
+        return dirs;
+    }
+
+    public int getTeam() {
+        return team;
+    }
+
+    public void tp(int x, int y,Direction d) {
+        super.tp(x, y);
+        setDirection(d);
+    }
 
     public Tank(int x, int y, Direction direction, Image[] image) {
         this(x, y, direction, 1, 0, image);
@@ -27,22 +38,6 @@ public class Tank extends GameObject {
         this.direction = direction;
         this.speed = 6;
         this.team = team;
-    }
-
-    public int getSpeed() {
-        return speed;
-    }
-
-    public boolean[] getDirs() {
-        return dirs;
-    }
-
-    public int getTeam() {
-        return team;
-    }
-
-    public void setDirection(Direction direction) {
-        this.direction = direction;
     }
 
     public boolean control() {
@@ -136,22 +131,22 @@ public class Tank extends GameObject {
     }
 
     public boolean collisionBound() {
-        boolean collision = false;
-        if (x < 0 + hitBox[2]) {
-            x = hitBox[2];
-            collision = true;
-        } else if (x > TankGame.getGameClient().getScreenWide() - hitBox[2]) {
-            x = TankGame.getGameClient().getScreenWide() - hitBox[2];
-            collision = true;
+        int[] play_zone=TankGame.getGameClient().getPlay_zone();
+        if (x < play_zone[0] + hitBox[2]) {
+            x = play_zone[0] + hitBox[2];
+            return true;
+        } else if (x > play_zone[0] + play_zone[2] - hitBox[2]) {
+            x = play_zone[0] + play_zone[2] - hitBox[2];
+            return true;
         }
-        if (y < -5 + hitBox[3]) {
-            y = -5 + hitBox[3];
-            collision = true;
-        } else if (y > TankGame.getGameClient().getScreenHeight() + 5 - hitBox[3]) {
-            y = TankGame.getGameClient().getScreenHeight() + 5 - hitBox[3];
-            collision = true;
+        if (y < + play_zone[1] + hitBox[3]) {
+            y = + play_zone[1] + hitBox[3];
+            return true;
+        } else if (y > play_zone[1] + play_zone[3] - hitBox[3]) {
+            y = play_zone[1] + play_zone[3] - hitBox[3];
+            return true;
         }
-        return collision;
+        return false;
     }
 
     public boolean collisionObject() {
@@ -192,18 +187,22 @@ public class Tank extends GameObject {
     }
 
     public void draw(Graphics g) {
-        if (ac_delay < 0) ac_delay = 0;
-        if (ac_delay == 0) {
-            if (state == 0 || state == 1) {
-                control();
-                if (dirs[4])
+            int base_state=state;
+
+            if (ac_delay < 0)
+                ac_delay = 0;
+            if (ac_delay == 0) {
+                if (state == 0 || state == 1) {
+                    control();
+                    if (dirs[4]){
+                        fire();
+                    }
+                }
+                if (state == 1 && determineDirection())
+                    move();
+                if (state == 3 && base_state==state)
                     fire();
-            }
-            if (state == 1 && determineDirection())
-                move();
-            if (state == 3)
-                fire();
-        } else ac_delay--;
+            } else ac_delay--;
         g.drawImage(image[direction.ordinal()], (int) (x - pmx[direction.ordinal()]), (int) (y - pmy[direction.ordinal()]), null);
     }
 }

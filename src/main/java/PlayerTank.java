@@ -4,7 +4,7 @@ import java.awt.*;
 
 public class PlayerTank extends Tank{
     public PlayerTank(int x, int y, Direction direction, Image[] image) {
-        super(x, y, direction, 3, 0, image);
+        super(x, y, direction, 1, 0, image);
 
         hitBox = new int[]{30, 30, 15, 15};
     }
