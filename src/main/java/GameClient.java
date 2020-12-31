@@ -18,8 +18,8 @@ public class GameClient extends JComponent {
     private ArrayList<GameObject> gameObjects = new ArrayList<>();
     private ArrayList<GameObject> newObjects = new ArrayList<>();
     private int[] play_zone;
-    public static final int SPACE=30;
-    public static final int HALF_SPACE=15;
+    public static final int SPACE = 30;
+    public static final int HALF_SPACE = 15;
     private Image[] brickImage;
     private Image[] eTankImage;
     private Image[] missileImage;
@@ -32,7 +32,7 @@ public class GameClient extends JComponent {
         this.screenWide = screenWide;
         this.screenHeight = screenHeight;
         this.setPreferredSize(new Dimension(screenWide, screenHeight));
-        play_zone=new int[]{0,0,screenWide,screenHeight};
+        play_zone = new int[]{0, 0, screenWide, screenHeight};
 
         init();
 
@@ -65,9 +65,9 @@ public class GameClient extends JComponent {
             missileImage[i] = Tools.getImage("missile" + sub[i]);
         }
 
-        String[] audios ={"hitting.wav","shoot.wav"};
-        for(String fileName:audios)
-        new File("assets/audios/"+fileName);
+        String[] audios = {"hitting.wav", "shoot.wav"};
+        for (String fileName : audios)
+            new File("assets/audios/" + fileName);
 
         playerTank = new PlayerTank(0, 0, Direction.RIGHT, iTankImage);
         reset(-1);
@@ -81,16 +81,21 @@ public class GameClient extends JComponent {
         gameObjects.add(playerTank);
     }
 
-    public void addGameObject(GameObject object) {newObjects.add(object);}
+    public void addGameObject(GameObject object) {
+        newObjects.add(object);
+    }
 
     public int getScreenWide() {
         return screenWide;
     }
+
     public int getScreenHeight() {
         return screenHeight;
     }
 
-    public int[] getPlay_zone(){return play_zone;}
+    public int[] getPlay_zone() {
+        return play_zone;
+    }
 
     public Tank getPlayerTank() {
         return playerTank;
@@ -152,31 +157,36 @@ public class GameClient extends JComponent {
                 playerTank.setHealth(2);
                 playerTank.setAlive(true);
             case 0: {
-                play_zone=new int[]{10,0,26*SPACE,20*SPACE};
+                play_zone = new int[]{10, 0, 26 * SPACE, 20 * SPACE};
 
-                gameObjects.add(new Wall(get_place_x(5), get_place_y(4), false, 3, brickImage));
-                gameObjects.add(new Wall(get_place_x(5),  get_place_y(13), false, 3, brickImage));
-                gameObjects.add(new Wall(get_place_x(0),  get_place_y(3), true, 9, brickImage));
-                gameObjects.add(new Wall(get_place_x(0),  get_place_y(16), true, 9, brickImage));
-                gameObjects.add(new Wall(get_place_x(16),  get_place_y(7), false, 6, brickImage));
-                gameObjects.add(new Wall(get_place_x(-1), get_place_y(0), false, 26, brickImage));
-                gameObjects.add(new Wall(get_place_x(26), get_place_y(0), false, 26, brickImage));
+                int[][] wall_list = new int[][]{{5, 4, 0, 3}, {5, 13, 0, 3},{0,3,1,9},{0,16,1,9},{16,7,0,6},{9,0,0,4},{9,16,0,4},{16,2,1,4},{16,17,1,4},
+                        {-1,0,0,26},{26,0,0,26}};
 
-                playerTank.tp(2*SPACE,14*SPACE,Direction.RIGHT);
+                for (int[] wall_info : wall_list) {
+                    gameObjects.add(new Wall(get_place_x(wall_info[0]), get_place_y(wall_info[1]), wall_info[2] == 1, wall_info[3], brickImage));
+                }
+
+                playerTank.tp(2 * SPACE, 14 * SPACE, Direction.RIGHT);
                 for (int i = 0; i < 3; i++) {
                     for (int j = 0; j < 4; j++) {
                         gameObjects.add(new EnemyTank(get_place_x(18) + i * SPACE * 3, get_place_y(5) + j * SPACE * 3, Direction.LEFT, 1, eTankImage));
                     }
                 }
-            }break;
+            }
+            break;
             case 1:
                 break;
         }
 
     }
 
-    public int get_place_x(int block){return play_zone[0]+HALF_SPACE+block*SPACE;}
-    public int get_place_y(int block){return play_zone[1]+HALF_SPACE+block*SPACE;}
+    public int get_place_x(int block) {
+        return play_zone[0] + HALF_SPACE + block * SPACE;
+    }
+
+    public int get_place_y(int block) {
+        return play_zone[1] + HALF_SPACE + block * SPACE;
+    }
 
 
     public void keyPressed(KeyEvent k) {
@@ -195,8 +205,9 @@ public class GameClient extends JComponent {
                 dirs[3] = true;
                 break;
             case KeyEvent.VK_CONTROL:
-                if(!dirs[4]&&!playerTank.isAlive()){reset(-1);}
-                else dirs[4] = true;
+                if (!dirs[4] && !playerTank.isAlive()) {
+                    reset(-1);
+                } else dirs[4] = true;
                 break;
         }
     }
