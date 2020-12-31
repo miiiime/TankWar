@@ -8,6 +8,7 @@ public abstract class MoveObject extends GameObject {
     protected Direction direction;
     protected int ac_delay;
     protected int ai_delay;
+    protected int team;
 
     public int getSpeed() {
         return speed;
@@ -18,6 +19,10 @@ public abstract class MoveObject extends GameObject {
 
     public void setDirection(Direction direction) {
         this.direction = direction;
+    }
+
+    public int getTeam() {
+        return team;
     }
 
     public MoveObject(int x, int y, int health, Image[] image) {

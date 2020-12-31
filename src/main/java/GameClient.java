@@ -4,6 +4,7 @@ import object.GameObject;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -64,6 +65,9 @@ public class GameClient extends JComponent {
             missileImage[i] = Tools.getImage("missile" + sub[i]);
         }
 
+        String[] audios ={"hitting.wav","shoot.wav"};
+        for(String fileName:audios)
+        new File("assets/audios/"+fileName);
 
         playerTank = new PlayerTank(0, 0, Direction.RIGHT, iTankImage);
         reset(-1);

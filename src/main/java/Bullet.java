@@ -5,12 +5,31 @@ import object.MoveObject;
 import java.awt.*;
 
 public class Bullet extends MoveObject {
-    int team;
+    protected int damage;
+
+    public int getTeam() {
+        return team;
+    }
+    public void setTeam(int team) {
+        this.team = team;
+    }
+
+    public int getDamage() {
+        return damage;
+    }
+    public void setDamage(int damage) {
+        this.damage = damage;
+    }
 
     public Bullet(int x, int y, Direction direction, int team, Image[] image) {
+        this(x,y,direction,team,image,1);
+    }
+
+    public Bullet(int x, int y, Direction direction, int team, Image[] image ,int damage) {
         super(x, y, 1, image);
         this.team=team;
-        super.direction=direction;
+        this.direction=direction;
+        this.damage=damage;
         speed=15;
         hitBox=new int[]{15,15,7,7};
     }
@@ -78,14 +97,15 @@ public class Bullet extends MoveObject {
 
     public boolean collisionObject() {
         for(GameObject object:TankGame.getGameClient().getGameObjects()){
-            if(object instanceof Tank && team==((Tank) object).getTeam())
+            if((object instanceof Tank || object instanceof Bullet) && team==((MoveObject) object).getTeam())
                 continue;
             if(object!=this && getRectangle().intersects(object.getRectangle())){
                 if(object.isAlive()) {
-                    if(object instanceof Tank)
-                        ((Tank) object).hitten(1);
-                    else if(object instanceof Bullet)
-                        ((Bullet) object).hitten(1);
+                    if(object instanceof Tank) {
+                        ((Tank) object).hitten(damage);
+                    Tools.playAudio("hitting.wav",0.2);
+                    }else if(object instanceof Bullet)
+                        ((Bullet) object).hitten(damage);
                 }
                 return true;
             }

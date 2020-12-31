@@ -8,14 +8,10 @@ import java.util.Arrays;
 
 public class Tank extends MoveObject {
     protected boolean[] dirs = new boolean[5];
-    protected int team;
+
 
     public boolean[] getDirs() {
         return dirs;
-    }
-
-    public int getTeam() {
-        return team;
     }
 
     public void tp(int x, int y,Direction d) {
@@ -165,12 +161,13 @@ public class Tank extends MoveObject {
     public void fire() {
         if (state == 0 || state == 1) {
             state = 3;
-            ac_delay += 5;
+            ac_delay += 10;
         } else if (state == 3) {
-            Bullet bullet = new Bullet((int) x, (int) y, direction, team, TankGame.getGameClient().getMissileImage());
+            Bullet bullet = new Bullet((int) x, (int) y, direction, team, TankGame.getGameClient().getMissileImage(),1);
             TankGame.getGameClient().addGameObject(bullet);
             state = 0;
             ac_delay = 5;
+            Tools.playAudio("shoot.wav",0.2);
         }
     }
 
