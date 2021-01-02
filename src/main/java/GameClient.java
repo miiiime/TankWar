@@ -23,6 +23,7 @@ public class GameClient extends JComponent {
     private Image[] brickImage;
     private Image[] eTankImage;
     private Image[] missileImage;
+    private Image[] super_fire_image;
 
     GameClient() {
         this(800, 600);
@@ -57,6 +58,7 @@ public class GameClient extends JComponent {
         Image[] iTankImage = new Image[8];
         eTankImage = new Image[8];
         missileImage = new Image[8];
+        super_fire_image =new Image[6];
 
         String[] sub = {"R.png", "RD.png", "D.png", "LD.png", "L.png", "LU.png", "U.png", "RU.png"};
         for (int i = 0; i < iTankImage.length; i++) {
@@ -65,7 +67,11 @@ public class GameClient extends JComponent {
             missileImage[i] = Tools.getImage("missile" + sub[i]);
         }
 
-        String[] audios = {"hitting.wav", "shoot.wav"};
+        for (int i = 0;i<super_fire_image.length;i++){
+            super_fire_image[i] = Tools.getImage("super_fire_"+(i+1)+".png");
+        }
+
+        String[] audios = {"hitting.wav", "hitting_alter.wav", "shoot.wav"};
         for (String fileName : audios)
             new File("assets/audios/" + fileName);
 
@@ -75,7 +81,7 @@ public class GameClient extends JComponent {
 
     public void addGameObject() {
         gameObjects.addAll(newObjects);
-        newObjects.removeAll(newObjects);
+        newObjects.clear();
 
         gameObjects.remove(playerTank);
         gameObjects.add(playerTank);
@@ -105,7 +111,13 @@ public class GameClient extends JComponent {
         return gameObjects;
     }
 
-    public Image[] getMissileImage() {
+    public Image[] getMissileImage(int type) {
+        switch (type){
+            case 0:
+                return missileImage;
+            case 1:
+                return super_fire_image;
+        }
         return missileImage;
     }
 
@@ -128,7 +140,8 @@ public class GameClient extends JComponent {
 
         checkGameStatus();
         g.setColor(Color.WHITE);
-        g.drawString("HP：" + playerTank.getHealth(), 0, 10);
+        g.drawString("Player's health：" + playerTank.getHealth(), 0, 10);
+        g.drawString("Super fire left：" + playerTank.get_super_fire_amount(), 0, 20);
     }
 
     private void checkGameStatus() {
@@ -148,13 +161,15 @@ public class GameClient extends JComponent {
 
     public void reset(int level) {
         playerTank.plusHealth(1);
+        playerTank.plus_super_fire_amount(1);
 
-        gameObjects.removeAll(gameObjects);
+        gameObjects.clear();
         gameObjects.add(playerTank);
 
         switch (level) {
             case -1:
                 playerTank.setHealth(2);
+                playerTank.set_super_fire_amount(2);
                 playerTank.setAlive(true);
             case 0: {
                 play_zone = new int[]{10, 0, 26 * SPACE, 20 * SPACE};
@@ -229,6 +244,12 @@ public class GameClient extends JComponent {
                 break;
             case KeyEvent.VK_CONTROL:
                 dirs[4] = false;
+                break;
+            case  KeyEvent.VK_Z:
+                if(playerTank.get_super_fire_amount()>0) {
+                    playerTank.super_fire();
+                    playerTank.plus_super_fire_amount(-1);
+                }
                 break;
         }
     }

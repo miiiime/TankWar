@@ -35,6 +35,7 @@ public abstract class MoveObject extends GameObject {
         ac_delay = 0;
         ai_delay = 0;
         state = 0;
+        frame = 0;
     }
 
     public void move() {

@@ -14,6 +14,9 @@ public abstract class GameObject {
     protected boolean alive;
     protected int health;
     protected int state;
+//    protected int type;
+    protected int frame;
+    protected int frame_delay;
 
     protected int width;
     protected int height;

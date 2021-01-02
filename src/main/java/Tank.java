@@ -163,8 +163,8 @@ public class Tank extends MoveObject {
             state = 3;
             ac_delay += 10;
         } else if (state == 3) {
-            Bullet bullet = new Bullet((int) x, (int) y, direction, team, TankGame.getGameClient().getMissileImage(),1);
-            TankGame.getGameClient().addGameObject(bullet);
+                Bullet bullet = new Bullet((int) x, (int) y, direction, team, TankGame.getGameClient().getMissileImage(0),1);
+                TankGame.getGameClient().addGameObject(bullet);
             state = 0;
             ac_delay = 5;
             Tools.playAudio("shoot.wav",0.2);
@@ -183,6 +183,8 @@ public class Tank extends MoveObject {
             alive = false;
     }
 
+    protected void extra_ac(){}
+
     public void draw(Graphics g) {
             int base_state=state;
 
@@ -199,6 +201,7 @@ public class Tank extends MoveObject {
                     move();
                 if (state == 3 && base_state==state)
                     fire();
+                extra_ac();
             } else ac_delay--;
         g.drawImage(image[direction.ordinal()], (int) (x - pmx[direction.ordinal()]), (int) (y - pmy[direction.ordinal()]), null);
     }

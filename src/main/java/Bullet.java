@@ -27,11 +27,13 @@ public class Bullet extends MoveObject {
 
     public Bullet(int x, int y, Direction direction, int team, Image[] image ,int damage) {
         super(x, y, 1, image);
-        this.team=team;
-        this.direction=direction;
-        this.damage=damage;
-        speed=15;
-        hitBox=new int[]{15,15,7,7};
+        this.team = team;
+        this.direction = direction;
+        this.damage = damage;
+        state=3000;
+
+        speed = 15;
+        hitBox = new int[]{15, 15, 7, 7};
     }
 
     public void move() {
@@ -74,6 +76,7 @@ public class Bullet extends MoveObject {
         if (!isCollision)
             isCollision = collisionObject();
         if (isCollision) {
+            health=0;
             alive=false;
         }
 
