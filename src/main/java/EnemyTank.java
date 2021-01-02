@@ -7,11 +7,16 @@ public class EnemyTank extends Tank {
 
 
     public EnemyTank(int x, int y, Direction direction, int team, Image[] image) {
-        super(x, y, direction, 1, team, image);
+        this(x, y, direction, 1, team, image, 0);
     }
 
     public EnemyTank(int x, int y, Direction direction, int health, int team, Image[] image) {
+        this(x, y, direction, health, team, image, 0);
+    }
+
+    public EnemyTank(int x, int y, Direction direction, int health, int team, Image[] image, int type) {
         super(x, y, direction, health, team, image);
+        this.type = type;
     }
 
     public boolean control() {
@@ -57,7 +62,7 @@ public class EnemyTank extends Tank {
     }
 
     private void ai() {
-        if(state==3)dirs[4]=false;
+        if (state == 3 && type != 1) dirs[4] = false;
         if (ai_delay < 0) ai_delay = 0;
         if (ai_delay == 0) {    //==============
             Random random = new Random();
@@ -70,7 +75,14 @@ public class EnemyTank extends Tank {
                 ai_delay += random.nextInt(10) + 1;
                 if (search()) {
                     control(8);
-                    ai_delay+=10;
+                    switch (type) {
+                        case 0:
+                            ai_delay += 15;
+                            break;
+                        case 1:
+                            ai_delay += 20 + random.nextInt(20);
+                            break;
+                    }
                 }
             }
         } else ai_delay--;      //==============

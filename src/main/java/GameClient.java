@@ -28,6 +28,10 @@ public class GameClient extends JComponent {
     private Image[] explosion_image;
     private Image[] health_ball_image;
 
+    private int level;
+    private final int max_level=3;
+    private boolean out_of_enemy;
+
     GameClient() {
         this(800, 600);
     }
@@ -61,9 +65,9 @@ public class GameClient extends JComponent {
         Image[] iTankImage = new Image[8];
         eTankImage = new Image[8];
         missileImage = new Image[8];
-        super_fire_image =new Image[6];
-        explosion_image =new Image[10];
-        health_ball_image =new Image[4];
+        super_fire_image = new Image[6];
+        explosion_image = new Image[10];
+        health_ball_image = new Image[4];
 
         String[] sub = {"R.png", "RD.png", "D.png", "LD.png", "L.png", "LU.png", "U.png", "RU.png"};
         for (int i = 0; i < iTankImage.length; i++) {
@@ -71,11 +75,11 @@ public class GameClient extends JComponent {
             eTankImage[i] = Tools.getImage("etank" + sub[i]);
             missileImage[i] = Tools.getImage("missile" + sub[i]);
         }
-        sub = new String[]{"super_fire_","explosion_","health_ball_"};
-        Image[][] target=new Image[][]{super_fire_image,explosion_image,health_ball_image};
-        for(int i =0;i<target.length;i++){
-            for (int j = 0;j<target[i].length;j++){
-                target[i][j] = Tools.getImage(sub[i]+(j+1)+".png");
+        sub = new String[]{"super_fire_", "explosion_", "health_ball_"};
+        Image[][] target = new Image[][]{super_fire_image, explosion_image, health_ball_image};
+        for (int i = 0; i < target.length; i++) {
+            for (int j = 0; j < target[i].length; j++) {
+                target[i][j] = Tools.getImage(sub[i] + (j + 1) + ".png");
             }
         }
 
@@ -84,9 +88,10 @@ public class GameClient extends JComponent {
             new File("assets/audios/" + fileName);
 
         playerTank = new PlayerTank(0, 0, Direction.RIGHT, iTankImage);
-        UI_objects.add(new Animation(20,20,health_ball_image,1,1));
-        UI_objects.add(new Animation(20,50,new Image[]{super_fire_image[0],super_fire_image[1]},1,1));
-        reset(-1);
+        UI_objects.add(new Animation(20, 20, health_ball_image, 1, 1));
+        UI_objects.add(new Animation(20, 50, new Image[]{super_fire_image[0], super_fire_image[1]}, 1, 1));
+        level=1;
+        reset(0);
     }
 
     public void addGameObject() {
@@ -122,7 +127,7 @@ public class GameClient extends JComponent {
     }
 
     public Image[] getImage(String target) {
-        switch (target){
+        switch (target) {
             case "missile":
                 return missileImage;
             case "super_fire":
@@ -156,15 +161,15 @@ public class GameClient extends JComponent {
                 iterator.remove();
         }
 
-        checkGameStatus();
+        checkGameStatus(g);
         g.setColor(Color.WHITE);
-        g.setFont(new Font(null,Font.BOLD,30));
-        g.drawString(""+playerTank.getHealth(), 45, 30);
-        g.drawString(""+playerTank.get_super_fire_amount(), 45, 60);
+        g.setFont(new Font(null, Font.BOLD, 30));
+        g.drawString("" + playerTank.getHealth(), 45, 30);
+        g.drawString("" + playerTank.get_super_fire_amount(), 45, 60);
     }
 
-    private void checkGameStatus() {
-        boolean out_of_enemy = true;
+    private void checkGameStatus(Graphics g) {
+        out_of_enemy = true;
 
         for (GameObject gameObjects : gameObjects) {
             if (gameObjects instanceof EnemyTank) {
@@ -173,28 +178,44 @@ public class GameClient extends JComponent {
             }
         }
 
+        if (!playerTank.isAlive()) {
+            g.setFont(new Font(null, Font.BOLD, 30));
+            g.setColor(Color.BLACK);
+            g.drawString("Your tank has been destroy.", 2, 567);
+            g.drawString("Press SPACE to reset to the first level.", 2, 597);
+            g.setColor(Color.RED);
+            g.drawString("Your tank has been destroy.", 0, 565);
+            g.setColor(Color.WHITE);
+            g.drawString("Press SPACE to reset to the first level.", 0, 595);
+        }
         if (out_of_enemy) {
-            reset(0);
+            g.setFont(new Font(null, Font.BOLD, 30));
+            g.setColor(Color.BLACK);
+            g.drawString("Level Clear.", 2, 567);
+            g.drawString("Press SPACE to the next level.", 2, 597);
+            g.setColor(Color.WHITE);
+            g.drawString("Level Clear.", 0, 565);
+            g.drawString("Press SPACE to the next level.", 0, 595);
         }
     }
 
-    public void reset(int level) {
-        playerTank.plusHealth(1);
-        playerTank.plus_super_fire_amount(1);
-
+    public void reset(int target_level) {
         gameObjects.clear();
         gameObjects.add(playerTank);
+        if(target_level<0)target_level=0;
+        else if(target_level>max_level)target_level=1;
+        level=target_level==0?1:target_level;
 
-        switch (level) {
-            case -1:
+        switch (target_level) {
+            case 0:
                 playerTank.setHealth(2);
                 playerTank.set_super_fire_amount(2);
                 playerTank.setAlive(true);
-            case 0: {
+            case 1: {
                 play_zone = new int[]{10, 0, 26 * SPACE, 20 * SPACE};
 
-                int[][] wall_list = new int[][]{{5, 4, 0, 3}, {5, 13, 0, 3},{0,3,1,9},{0,16,1,9},{16,7,0,6},{9,0,0,4},{9,16,0,4},{16,2,1,4},{16,17,1,4},
-                        {-1,0,0,26},{26,0,0,26}};
+                int[][] wall_list = new int[][]{{5, 4, 0, 3}, {5, 13, 0, 3}, {0, 3, 1, 9}, {0, 16, 1, 9}, {16, 7, 0, 6}, {9, 0, 0, 4}, {9, 16, 0, 4}, {16, 2, 1, 4}, {16, 17, 1, 4},
+                        {-1, 0, 0, 26}, {26, 0, 0, 26}};
 
                 for (int[] wall_info : wall_list) {
                     gameObjects.add(new Wall(get_place_x(wall_info[0]), get_place_y(wall_info[1]), wall_info[2] == 1, wall_info[3], brickImage));
@@ -208,7 +229,62 @@ public class GameClient extends JComponent {
                 }
             }
             break;
-            case 1:
+            case 2:{
+                play_zone = new int[]{10, 0, 26 * SPACE, 20 * SPACE};
+
+                int[][] wall_list = new int[][]{{5, 4, 0, 3}, {5, 13, 0, 3}, {16, 0, 0, 7}, {16, 13, 0, 7}, {9, 0, 0, 4}, {9, 16, 0, 4},
+                        {-1, 0, 0, 26}, {26, 0, 0, 26}};
+
+                for (int[] wall_info : wall_list) {
+                    gameObjects.add(new Wall(get_place_x(wall_info[0]), get_place_y(wall_info[1]), wall_info[2] == 1, wall_info[3], brickImage));
+                }
+
+                playerTank.tp(8 * SPACE, 18 * SPACE, Direction.RIGHT);
+                for (int i = 0; i < 3; i++) {
+                    for (int j = 0; j < 3; j++) {
+                        gameObjects.add(new EnemyTank(get_place_x(18) + i * SPACE * 3, get_place_y(1) + j * SPACE * 2, Direction.LEFT, 1, eTankImage));
+                    }
+                }
+
+                for (int i = 0; i < 3; i++) {
+                    for (int j = 0; j < 3; j++) {
+                        gameObjects.add(new EnemyTank(get_place_x(18) + i * SPACE * 3, get_place_y(14) + j * SPACE * 2, Direction.LEFT, 1, eTankImage));
+                    }
+                }
+            }
+                break;
+            case 3:{
+                play_zone = new int[]{10, 30, 26 * SPACE, 18 * SPACE};
+
+                int[][] wall_list = new int[][]{{6, 3, 1, 5},{6, 14, 1, 5},{6, 4, 0, 4},{6, 10, 0, 4},{15, 3, 1, 5},{15, 14, 1, 5},{19, 4, 0, 4},{19, 10, 0, 4},
+                        {-1, -1, 0, 26}, {26, -1, 0, 26}};
+
+                for (int[] wall_info : wall_list) {
+                    gameObjects.add(new Wall(get_place_x(wall_info[0]), get_place_y(wall_info[1]), wall_info[2] == 1, wall_info[3], brickImage));
+                }
+
+                playerTank.tp(9 * SPACE, 14 * SPACE, Direction.RIGHT);
+                for (int i = 0; i < 2; i++) {
+                    for (int j = 0; j < 2; j++) {
+                        gameObjects.add(new EnemyTank(get_place_x(2) + i * SPACE * 2, get_place_y(2) + j * SPACE * 2, Direction.LEFT, 1, 1, eTankImage,1));
+                    }
+                }
+                for (int i = 0; i < 2; i++) {
+                    for (int j = 0; j < 2; j++) {
+                        gameObjects.add(new EnemyTank(get_place_x(22) + i * SPACE * 2, get_place_y(2) + j * SPACE * 2, Direction.LEFT, 1, 1, eTankImage,0));
+                    }
+                }
+                for (int i = 0; i < 2; i++) {
+                    for (int j = 0; j < 2; j++) {
+                        gameObjects.add(new EnemyTank(get_place_x(2) + i * SPACE * 2, get_place_y(13) + j * SPACE * 2, Direction.LEFT, 1, 1, eTankImage,0));
+                    }
+                }
+                for (int i = 0; i < 2; i++) {
+                    for (int j = 0; j < 2; j++) {
+                        gameObjects.add(new EnemyTank(get_place_x(22) + i * SPACE * 2, get_place_y(13) + j * SPACE * 2, Direction.LEFT, 1, 1, eTankImage,1));
+                    }
+                }
+            }
                 break;
         }
 
@@ -238,10 +314,8 @@ public class GameClient extends JComponent {
             case KeyEvent.VK_UP:
                 dirs[3] = true;
                 break;
-            case KeyEvent.VK_CONTROL:
-                if (!dirs[4] && !playerTank.isAlive()) {
-                    reset(-1);
-                } else dirs[4] = true;
+            case KeyEvent.VK_Z:
+                dirs[4] = true;
                 break;
         }
     }
@@ -261,15 +335,30 @@ public class GameClient extends JComponent {
             case KeyEvent.VK_UP:
                 dirs[3] = false;
                 break;
-            case KeyEvent.VK_CONTROL:
+            case KeyEvent.VK_Z:
                 dirs[4] = false;
                 break;
-            case  KeyEvent.VK_Z:
-                if(playerTank.get_super_fire_amount()>0) {
+            case KeyEvent.VK_X:
+                if (playerTank.isAlive()&&playerTank.get_super_fire_amount() > 0) {
                     playerTank.super_fire();
                     playerTank.plus_super_fire_amount(-1);
                 }
                 break;
+            case KeyEvent.VK_SPACE:
+                if (!playerTank.isAlive()) {
+                    reset(0);
+                }else if (out_of_enemy) {
+                    playerTank.plusHealth(1);
+                    playerTank.plus_super_fire_amount(1);
+                    reset(level+1);
+                }
+                break;
+            case KeyEvent.VK_T:
+                playerTank.setHealth(64);
+                playerTank.set_super_fire_amount(64);
+                reset(3);
+                break;
+
         }
     }
 }

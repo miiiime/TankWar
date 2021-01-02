@@ -16,6 +16,7 @@ public class BulletAlter extends Bullet {
     public BulletAlter(int x, int y, Direction direction, int team, Image[] image, int damage ,int pmx,int pmy,int ffe) {
         super(x, y, direction, team, image, damage);
 
+        hitBox = new int[]{25, 25, 13, 13};
         this.pmx = new int[]{pmx};
         this.pmy = new int[]{pmy};
         frame=0;
@@ -43,7 +44,7 @@ public class BulletAlter extends Bullet {
                 continue;
             if(hitten_target.contains(object))
                 continue;
-            if(object!=this && getRectangle().intersects(object.getRectangle())){
+            if(object instanceof Wall?new Rectangle((int) x - 3, (int) y - 3, 5, 5).intersects(object.getRectangle()):getRectangle().intersects(object.getRectangle())){
                 if(object.isAlive()) {
                     hitten_target.add(object);
                     if(object instanceof Tank) {
