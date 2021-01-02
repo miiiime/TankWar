@@ -147,6 +147,7 @@ public class Tank extends MoveObject {
 
     public boolean collisionObject() {
         for (GameObject object : TankGame.getGameClient().getGameObjects()) {
+            if (object instanceof Animation)continue;
             if (object != this && !(object instanceof Bullet) && getRectangle().intersects(object.getRectangle())) {
                 return true;
             }
@@ -163,7 +164,7 @@ public class Tank extends MoveObject {
             state = 3;
             ac_delay += 10;
         } else if (state == 3) {
-                Bullet bullet = new Bullet((int) x, (int) y, direction, team, TankGame.getGameClient().getMissileImage(0),1);
+                Bullet bullet = new Bullet((int) x, (int) y, direction, team, TankGame.getGameClient().getImage("missile"),1);
                 TankGame.getGameClient().addGameObject(bullet);
             state = 0;
             ac_delay = 5;

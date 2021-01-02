@@ -38,6 +38,7 @@ public class BulletAlter extends Bullet {
 
     public boolean collisionObject() {
         for(GameObject object:TankGame.getGameClient().getGameObjects()){
+            if (object instanceof Animation)continue;
             if((object instanceof Tank || object instanceof Bullet) && team==((MoveObject) object).getTeam())
                 continue;
             if(hitten_target.contains(object))
@@ -48,6 +49,8 @@ public class BulletAlter extends Bullet {
                     if(object instanceof Tank) {
                         ((Tank) object).hitten(damage);
                         Tools.playAudio("hitting_alter.wav",0.2);
+                        Animation hitting = new Animation((int)object.getX(),(int)object.getY(),TankGame.getGameClient().getImage("super_fire"),0,1);
+                        TankGame.getGameClient().addGameObject(hitting);
                     }else if(object instanceof Bullet)
                         ((Bullet) object).hitten(damage);
                 }

@@ -17,6 +17,7 @@ public class GameClient extends JComponent {
 
     private ArrayList<GameObject> gameObjects = new ArrayList<>();
     private ArrayList<GameObject> newObjects = new ArrayList<>();
+    private ArrayList<GameObject> UI_objects = new ArrayList<>();
     private int[] play_zone;
     public static final int SPACE = 30;
     public static final int HALF_SPACE = 15;
@@ -24,6 +25,8 @@ public class GameClient extends JComponent {
     private Image[] eTankImage;
     private Image[] missileImage;
     private Image[] super_fire_image;
+    private Image[] explosion_image;
+    private Image[] health_ball_image;
 
     GameClient() {
         this(800, 600);
@@ -59,6 +62,8 @@ public class GameClient extends JComponent {
         eTankImage = new Image[8];
         missileImage = new Image[8];
         super_fire_image =new Image[6];
+        explosion_image =new Image[10];
+        health_ball_image =new Image[4];
 
         String[] sub = {"R.png", "RD.png", "D.png", "LD.png", "L.png", "LU.png", "U.png", "RU.png"};
         for (int i = 0; i < iTankImage.length; i++) {
@@ -66,16 +71,21 @@ public class GameClient extends JComponent {
             eTankImage[i] = Tools.getImage("etank" + sub[i]);
             missileImage[i] = Tools.getImage("missile" + sub[i]);
         }
-
-        for (int i = 0;i<super_fire_image.length;i++){
-            super_fire_image[i] = Tools.getImage("super_fire_"+(i+1)+".png");
+        sub = new String[]{"super_fire_","explosion_","health_ball_"};
+        Image[][] target=new Image[][]{super_fire_image,explosion_image,health_ball_image};
+        for(int i =0;i<target.length;i++){
+            for (int j = 0;j<target[i].length;j++){
+                target[i][j] = Tools.getImage(sub[i]+(j+1)+".png");
+            }
         }
 
-        String[] audios = {"hitting.wav", "hitting_alter.wav", "shoot.wav"};
+        String[] audios = {"hitting.wav", "hitting_alter.wav", "shoot.wav", "shoot_alter.wav"};
         for (String fileName : audios)
             new File("assets/audios/" + fileName);
 
         playerTank = new PlayerTank(0, 0, Direction.RIGHT, iTankImage);
+        UI_objects.add(new Animation(20,20,health_ball_image,1,1));
+        UI_objects.add(new Animation(20,50,new Image[]{super_fire_image[0],super_fire_image[1]},1,1));
         reset(-1);
     }
 
@@ -111,23 +121,31 @@ public class GameClient extends JComponent {
         return gameObjects;
     }
 
-    public Image[] getMissileImage(int type) {
-        switch (type){
-            case 0:
+    public Image[] getImage(String target) {
+        switch (target){
+            case "missile":
                 return missileImage;
-            case 1:
+            case "super_fire":
                 return super_fire_image;
+            case "explosion":
+                return explosion_image;
+            case "health_ball":
+                return health_ball_image;
         }
         return missileImage;
     }
 
     @Override
-    protected void paintComponent(Graphics g) {
+    protected void paintComponent(Graphics g) {                             //=======
         g.setColor(Color.DARK_GRAY);
         g.fillRect(play_zone[0], play_zone[1], play_zone[2], play_zone[3]);
 
         for (GameObject gameObjects : gameObjects) {
             gameObjects.draw(g);
+        }
+
+        for (GameObject objects : UI_objects) {
+            objects.draw(g);
         }
 
         addGameObject();
@@ -140,8 +158,9 @@ public class GameClient extends JComponent {
 
         checkGameStatus();
         g.setColor(Color.WHITE);
-        g.drawString("Player's health：" + playerTank.getHealth(), 0, 10);
-        g.drawString("Super fire left：" + playerTank.get_super_fire_amount(), 0, 20);
+        g.setFont(new Font(null,Font.BOLD,30));
+        g.drawString(""+playerTank.getHealth(), 45, 30);
+        g.drawString(""+playerTank.get_super_fire_amount(), 45, 60);
     }
 
     private void checkGameStatus() {

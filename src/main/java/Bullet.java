@@ -100,6 +100,7 @@ public class Bullet extends MoveObject {
 
     public boolean collisionObject() {
         for(GameObject object:TankGame.getGameClient().getGameObjects()){
+            if (object instanceof Animation)continue;
             if((object instanceof Tank || object instanceof Bullet) && team==((MoveObject) object).getTeam())
                 continue;
             if(object!=this && getRectangle().intersects(object.getRectangle())){
@@ -107,6 +108,8 @@ public class Bullet extends MoveObject {
                     if(object instanceof Tank) {
                         ((Tank) object).hitten(damage);
                     Tools.playAudio("hitting.wav",0.2);
+                        Animation hitting = new Animation((int)x,(int)y,TankGame.getGameClient().getImage("explosion"),0,0);
+                        TankGame.getGameClient().addGameObject(hitting);
                     }else if(object instanceof Bullet)
                         ((Bullet) object).hitten(damage);
                 }

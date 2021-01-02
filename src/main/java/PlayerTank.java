@@ -48,7 +48,7 @@ public class PlayerTank extends Tank implements SuperFire {
 
 
     private void fire_alter(){
-        BulletAlter bullet = new BulletAlter((int) x, (int) y, direction, team, TankGame.getGameClient().getMissileImage(1),1);
+        BulletAlter bullet = new BulletAlter((int) x, (int) y, direction, team, TankGame.getGameClient().getImage("super_fire"),1);
         TankGame.getGameClient().addGameObject(bullet);
         state = 0;
         ac_delay = 20;

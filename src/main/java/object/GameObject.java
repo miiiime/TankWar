@@ -14,7 +14,7 @@ public abstract class GameObject {
     protected boolean alive;
     protected int health;
     protected int state;
-//    protected int type;
+    protected int type;
     protected int frame;
     protected int frame_delay;
 
@@ -58,9 +58,14 @@ public abstract class GameObject {
     }
 
     public GameObject(int x, int y, int health, Image[] image) {
+        this(x,y,health,image,0);
+    }
+
+    public GameObject(int x, int y, int health, Image[] image,int type) {
         this.x = x;
         this.y = y;
         this.image = image;
+        this.type = type;
 
         setBase(health);
 
@@ -72,14 +77,10 @@ public abstract class GameObject {
 
     protected void setPicMid() {
         pmx = new int[image.length];
-        for (int i = 0; i < pmx.length; i++) {
-            if (pmx[i] == 0)
-                pmx[i] = width / 2;
-        }
         pmy = new int[image.length];
-        for (int i = 0; i < pmy.length; i++) {
-            if (pmy[i] == 0)
-                pmy[i] = width / 2;
+        for (int i = 0; i < pmx.length; i++) {
+                pmx[i] = image[i].getWidth(null) / 2;
+                pmy[i] = image[i].getHeight(null) / 2;
         }
     }
 
