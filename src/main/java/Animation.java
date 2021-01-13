@@ -36,6 +36,15 @@ public class Animation extends GameObject {
                     break;
             }
         }
-        if(alive)g.drawImage(image[frame-1], (int) (x - pmx[frame-1]), (int) (y - pmy[frame-1]), null);
+        if(alive){
+            switch (type){
+                case 0:
+                    g.drawImage(image[frame-1], (int) (x - pmx[frame-1]+TankGame.getGameClient().getPtx()), (int) (y - pmy[frame-1]+TankGame.getGameClient().getPty()), null);
+                    break;
+                case 1:
+                    g.drawImage(image[frame-1], (int) (x - pmx[frame-1]), (int) (y - pmy[frame-1]), null);
+                    break;
+            }
+        }
     }
 }

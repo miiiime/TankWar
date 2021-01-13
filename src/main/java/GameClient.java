@@ -21,6 +21,9 @@ public class GameClient extends JComponent {
     private int[] play_zone;
     public static final int SPACE = 30;
     public static final int HALF_SPACE = 15;
+    private int ptx;
+    private int pty;
+
     private Image[] brickImage;
     private Image[] eTankImage;
     private Image[] missileImage;
@@ -29,7 +32,7 @@ public class GameClient extends JComponent {
     private Image[] health_ball_image;
 
     private int level;
-    private final int max_level=3;
+    private final int max_level = 4;
     private boolean out_of_enemy;
 
     GameClient() {
@@ -90,7 +93,7 @@ public class GameClient extends JComponent {
         playerTank = new PlayerTank(0, 0, Direction.RIGHT, iTankImage);
         UI_objects.add(new Animation(20, 20, health_ball_image, 1, 1));
         UI_objects.add(new Animation(20, 50, new Image[]{super_fire_image[0], super_fire_image[1]}, 1, 1));
-        level=1;
+        level = 1;
         reset(0);
     }
 
@@ -104,6 +107,20 @@ public class GameClient extends JComponent {
 
     public void addGameObject(GameObject object) {
         newObjects.add(object);
+    }
+
+    public int getPtx() {
+        return ptx;
+    }
+    public void setPtx(int ptx) {
+        this.ptx = ptx;
+    }
+
+    public int getPty() {
+        return pty;
+    }
+    public void setPty(int pty) {
+        this.pty = pty;
     }
 
     public int getScreenWide() {
@@ -142,8 +159,27 @@ public class GameClient extends JComponent {
 
     @Override
     protected void paintComponent(Graphics g) {                             //=======
+
+        if (playerTank.getX() < screenWide / 2.0 || play_zone[2] - play_zone[0] <= screenWide) {
+            ptx = 0;
+        } else if (playerTank.getX() > play_zone[2] + play_zone[0] + SPACE - screenWide / 2.0) {
+            ptx = -play_zone[2] - play_zone[0] + screenWide - SPACE;
+        } else {
+        ptx = (int) (screenWide / 2.0 - playerTank.getX());
+        }
+
+        if (playerTank.getY() < screenHeight / 2.0 || play_zone[3] - play_zone[1] <= screenHeight) {
+            pty = 0;
+        } else if (playerTank.getY() > play_zone[3] + play_zone[1] + SPACE - screenHeight / 2.0) {
+            pty = -play_zone[3] - play_zone[1] + screenHeight - SPACE;
+        } else {
+            pty = (int) (screenHeight / 2.0 - playerTank.getY());
+        }
+
+//        pty = (int) (screenHeight / 2.0 - playerTank.getY());
+
         g.setColor(Color.DARK_GRAY);
-        g.fillRect(play_zone[0], play_zone[1], play_zone[2], play_zone[3]);
+        g.fillRect(play_zone[0]+ptx, play_zone[1]+pty, play_zone[2], play_zone[3]);
 
         for (GameObject gameObjects : gameObjects) {
             gameObjects.draw(g);
@@ -202,9 +238,11 @@ public class GameClient extends JComponent {
     public void reset(int target_level) {
         gameObjects.clear();
         gameObjects.add(playerTank);
-        if(target_level<0)target_level=0;
-        else if(target_level>max_level)target_level=1;
-        level=target_level==0?1:target_level;
+        if (target_level < 0) target_level = 0;
+        else if (target_level > max_level) target_level = 1;
+        level = target_level == 0 ? 1 : target_level;
+        ptx = 0;
+        pty = 0;
 
         switch (target_level) {
             case 0:
@@ -215,7 +253,7 @@ public class GameClient extends JComponent {
                 play_zone = new int[]{10, 0, 26 * SPACE, 20 * SPACE};
 
                 int[][] wall_list = new int[][]{{5, 4, 0, 3}, {5, 13, 0, 3}, {0, 3, 1, 9}, {0, 16, 1, 9}, {16, 7, 0, 6}, {9, 0, 0, 4}, {9, 16, 0, 4}, {16, 2, 1, 4}, {16, 17, 1, 4},
-                        {-1, 0, 0, 26}, {26, 0, 0, 26}};
+                        {-1, 0, 0, 20}, {26, 0, 0, 20}};
 
                 for (int[] wall_info : wall_list) {
                     gameObjects.add(new Wall(get_place_x(wall_info[0]), get_place_y(wall_info[1]), wall_info[2] == 1, wall_info[3], brickImage));
@@ -229,11 +267,11 @@ public class GameClient extends JComponent {
                 }
             }
             break;
-            case 2:{
+            case 2: {
                 play_zone = new int[]{10, 0, 26 * SPACE, 20 * SPACE};
 
                 int[][] wall_list = new int[][]{{5, 4, 0, 3}, {5, 13, 0, 3}, {16, 0, 0, 7}, {16, 13, 0, 7}, {9, 0, 0, 4}, {9, 16, 0, 4},
-                        {-1, 0, 0, 26}, {26, 0, 0, 26}};
+                        {-1, 0, 0, 20}, {26, 0, 0, 20}};
 
                 for (int[] wall_info : wall_list) {
                     gameObjects.add(new Wall(get_place_x(wall_info[0]), get_place_y(wall_info[1]), wall_info[2] == 1, wall_info[3], brickImage));
@@ -252,12 +290,12 @@ public class GameClient extends JComponent {
                     }
                 }
             }
-                break;
-            case 3:{
+            break;
+            case 3: {
                 play_zone = new int[]{10, 30, 26 * SPACE, 18 * SPACE};
 
-                int[][] wall_list = new int[][]{{6, 3, 1, 5},{6, 14, 1, 5},{6, 4, 0, 4},{6, 10, 0, 4},{15, 3, 1, 5},{15, 14, 1, 5},{19, 4, 0, 4},{19, 10, 0, 4},
-                        {-1, -1, 0, 26}, {26, -1, 0, 26}};
+                int[][] wall_list = new int[][]{{6, 3, 1, 5}, {6, 14, 1, 5}, {6, 4, 0, 4}, {6, 10, 0, 4}, {15, 3, 1, 5}, {15, 14, 1, 5}, {19, 4, 0, 4}, {19, 10, 0, 4},
+                        {-1, -1, 0, 20}, {26, -1, 0, 20}, {0, -1, 1, 26}, {0, 18, 1, 26}};
 
                 for (int[] wall_info : wall_list) {
                     gameObjects.add(new Wall(get_place_x(wall_info[0]), get_place_y(wall_info[1]), wall_info[2] == 1, wall_info[3], brickImage));
@@ -266,26 +304,54 @@ public class GameClient extends JComponent {
                 playerTank.tp(9 * SPACE, 14 * SPACE, Direction.RIGHT);
                 for (int i = 0; i < 2; i++) {
                     for (int j = 0; j < 2; j++) {
-                        gameObjects.add(new EnemyTank(get_place_x(2) + i * SPACE * 2, get_place_y(2) + j * SPACE * 2, Direction.LEFT, 1, 1, eTankImage,1));
+                        gameObjects.add(new EnemyTank(get_place_x(2) + i * SPACE * 2, get_place_y(2) + j * SPACE * 2, Direction.LEFT, 1, 1, eTankImage, 1));
                     }
                 }
                 for (int i = 0; i < 2; i++) {
                     for (int j = 0; j < 2; j++) {
-                        gameObjects.add(new EnemyTank(get_place_x(22) + i * SPACE * 2, get_place_y(2) + j * SPACE * 2, Direction.LEFT, 1, 1, eTankImage,0));
+                        gameObjects.add(new EnemyTank(get_place_x(22) + i * SPACE * 2, get_place_y(2) + j * SPACE * 2, Direction.LEFT, 1, 1, eTankImage, 0));
                     }
                 }
                 for (int i = 0; i < 2; i++) {
                     for (int j = 0; j < 2; j++) {
-                        gameObjects.add(new EnemyTank(get_place_x(2) + i * SPACE * 2, get_place_y(13) + j * SPACE * 2, Direction.LEFT, 1, 1, eTankImage,0));
+                        gameObjects.add(new EnemyTank(get_place_x(2) + i * SPACE * 2, get_place_y(13) + j * SPACE * 2, Direction.LEFT, 1, 1, eTankImage, 0));
                     }
                 }
                 for (int i = 0; i < 2; i++) {
                     for (int j = 0; j < 2; j++) {
-                        gameObjects.add(new EnemyTank(get_place_x(22) + i * SPACE * 2, get_place_y(13) + j * SPACE * 2, Direction.LEFT, 1, 1, eTankImage,1));
+                        gameObjects.add(new EnemyTank(get_place_x(22) + i * SPACE * 2, get_place_y(13) + j * SPACE * 2, Direction.LEFT, 1, 1, eTankImage, 1));
                     }
                 }
             }
-                break;
+            break;
+            case 4: {
+                play_zone = new int[]{SPACE, 2 * SPACE, 39 * SPACE, 16 * SPACE};
+
+                int[][] wall_list = new int[][]{{6, 3, 0, 10},
+                        {-1, -1, 0, 18}, {39, -1, 0, 18}, {0, -1, 1, 39}, {0, 16, 1, 39}};
+
+                for (int[] wall_info : wall_list) {
+                    gameObjects.add(new Wall(get_place_x(wall_info[0]), get_place_y(wall_info[1]), wall_info[2] == 1, wall_info[3], brickImage));
+                }
+
+                playerTank.tp(3 * SPACE, 10 * SPACE, Direction.RIGHT);
+                for (int i = 0; i < 2; i++) {
+                    for (int j = 0; j < 3; j++) {
+                        gameObjects.add(new EnemyTank(get_place_x(35) + i * SPACE * 2, get_place_y(1) + j * SPACE * 2, Direction.LEFT, 1, 1, eTankImage, 1));
+                    }
+                }
+                for (int i = 0; i < 2; i++) {
+                    for (int j = 0; j < 3; j++) {
+                        gameObjects.add(new EnemyTank(get_place_x(35) + i * SPACE * 2, get_place_y(10) + j * SPACE * 2, Direction.LEFT, 1, 1, eTankImage, 1));
+                    }
+                }
+                for (int i = 0; i < 2; i++) {
+                    for (int j = 0; j < 4; j++) {
+                        gameObjects.add(new EnemyTank(get_place_x(31) + i * SPACE * 2, get_place_y(3) + j * SPACE * 3, Direction.LEFT, 3, 1, eTankImage, 1));
+                    }
+                }
+            }
+            break;
         }
 
     }
@@ -339,7 +405,7 @@ public class GameClient extends JComponent {
                 dirs[4] = false;
                 break;
             case KeyEvent.VK_X:
-                if (playerTank.isAlive()&&playerTank.get_super_fire_amount() > 0) {
+                if (playerTank.isAlive() && playerTank.get_super_fire_amount() > 0) {
                     playerTank.super_fire();
                     playerTank.plus_super_fire_amount(-1);
                 }
@@ -347,16 +413,16 @@ public class GameClient extends JComponent {
             case KeyEvent.VK_SPACE:
                 if (!playerTank.isAlive()) {
                     reset(0);
-                }else if (out_of_enemy) {
+                } else if (out_of_enemy) {
                     playerTank.plusHealth(1);
                     playerTank.plus_super_fire_amount(1);
-                    reset(level+1);
+                    reset(level + 1);
                 }
                 break;
             case KeyEvent.VK_T:
                 playerTank.setHealth(64);
                 playerTank.set_super_fire_amount(64);
-                reset(3);
+                reset(4);
                 break;
 
         }

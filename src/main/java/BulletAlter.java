@@ -96,6 +96,6 @@ public class BulletAlter extends Bullet {
         }
         if (state==3001)
             hitting();
-        if(alive)g.drawImage(image[frame], (int) (x - pmx[0]), (int) (y - pmy[0]), null);
+        if(alive)g.drawImage(image[frame], (int) (x - pmx[0]+TankGame.getGameClient().getPtx()), (int) (y - pmy[0]+TankGame.getGameClient().getPty()), null);
     }
 }

@@ -134,7 +134,7 @@ public class Bullet extends MoveObject {
         if(!alive)return;
 
         move();
-        g.drawImage(image[direction.ordinal()], (int) (x - pmx[direction.ordinal()]), (int) (y - pmy[direction.ordinal()]), null);
+        g.drawImage(image[direction.ordinal()], (int) (x - pmx[direction.ordinal()]+TankGame.getGameClient().getPtx()), (int) (y - pmy[direction.ordinal()]+TankGame.getGameClient().getPty()), null);
     }
 }
 

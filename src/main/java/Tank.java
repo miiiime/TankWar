@@ -204,6 +204,6 @@ public class Tank extends MoveObject {
                     fire();
                 extra_ac();
             } else ac_delay--;
-        g.drawImage(image[direction.ordinal()], (int) (x - pmx[direction.ordinal()]), (int) (y - pmy[direction.ordinal()]), null);
+            g.drawImage(image[direction.ordinal()], (int) (x - pmx[direction.ordinal()]+TankGame.getGameClient().getPtx()), (int) (y - pmy[direction.ordinal()]+TankGame.getGameClient().getPty()), null);
     }
 }
