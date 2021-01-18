@@ -62,27 +62,34 @@ public class EnemyTank extends Tank {
     }
 
     private void ai() {
-        if (state == 3 && type != 1) dirs[4] = false;
+        if (state == 3) dirs[4] = false;
         if (ai_delay < 0) ai_delay = 0;
         if (ai_delay == 0) {    //==============
             Random random = new Random();
 
             if (state == 0) {
                 state = 1;
-                wander(random.nextInt(8), random.nextInt(10) + 11);
+                switch (type) {
+                    case 0:
+                        wander(random.nextInt(8), random.nextInt(10) + 11);
+                        break;
+                    case 1:
+                        wander(random.nextInt(8), random.nextInt(8) + random.nextInt(8) + 4);
+                        break;
+                }
             } else if (state == 1) {
                 state = 0;
-                ai_delay += random.nextInt(10) + 1;
+                switch (type) {
+                    case 0:
+                        ai_delay += random.nextInt(10) + 1;
+                        break;
+                    case 1:
+                        ai_delay += 2;
+                        break;
+                }
                 if (search()) {
                     control(8);
-                    switch (type) {
-                        case 0:
-                            ai_delay += 15;
-                            break;
-                        case 1:
-                            ai_delay += 20 + random.nextInt(20);
-                            break;
-                    }
+                    ai_delay += 15;
                 }
             }
         } else ai_delay--;      //==============

@@ -30,6 +30,7 @@ public class GameClient extends JComponent {
     private Image[] super_fire_image;
     private Image[] explosion_image;
     private Image[] health_ball_image;
+    private Image[] baseImage;
 
     private int level;
     private final int max_level = 4;
@@ -85,6 +86,8 @@ public class GameClient extends JComponent {
                 target[i][j] = Tools.getImage(sub[i] + (j + 1) + ".png");
             }
         }
+        baseImage = new Image[]{Tools.getImage("base.png")};
+
 
         String[] audios = {"hitting.wav", "hitting_alter.wav", "shoot.wav", "shoot_alter.wav"};
         for (String fileName : audios)
@@ -145,6 +148,8 @@ public class GameClient extends JComponent {
 
     public Image[] getImage(String target) {
         switch (target) {
+            case "eTank":
+                return eTankImage;
             case "missile":
                 return missileImage;
             case "super_fire":
@@ -208,7 +213,7 @@ public class GameClient extends JComponent {
         out_of_enemy = true;
 
         for (GameObject gameObjects : gameObjects) {
-            if (gameObjects instanceof EnemyTank) {
+            if (gameObjects instanceof EnemyTank || (gameObjects instanceof Building && ((Building) gameObjects).getTeam()!=0)) {
                 out_of_enemy = false;
                 break;
             }
@@ -302,54 +307,30 @@ public class GameClient extends JComponent {
                 }
 
                 playerTank.tp(9 * SPACE, 14 * SPACE, Direction.RIGHT);
-                for (int i = 0; i < 2; i++) {
-                    for (int j = 0; j < 2; j++) {
-                        gameObjects.add(new EnemyTank(get_place_x(2) + i * SPACE * 2, get_place_y(2) + j * SPACE * 2, Direction.LEFT, 1, 1, eTankImage, 1));
-                    }
-                }
-                for (int i = 0; i < 2; i++) {
-                    for (int j = 0; j < 2; j++) {
-                        gameObjects.add(new EnemyTank(get_place_x(22) + i * SPACE * 2, get_place_y(2) + j * SPACE * 2, Direction.LEFT, 1, 1, eTankImage, 0));
-                    }
-                }
-                for (int i = 0; i < 2; i++) {
-                    for (int j = 0; j < 2; j++) {
-                        gameObjects.add(new EnemyTank(get_place_x(2) + i * SPACE * 2, get_place_y(13) + j * SPACE * 2, Direction.LEFT, 1, 1, eTankImage, 0));
-                    }
-                }
-                for (int i = 0; i < 2; i++) {
-                    for (int j = 0; j < 2; j++) {
-                        gameObjects.add(new EnemyTank(get_place_x(22) + i * SPACE * 2, get_place_y(13) + j * SPACE * 2, Direction.LEFT, 1, 1, eTankImage, 1));
-                    }
-                }
+                gameObjects.add(new EnemyTank(get_place_x(2), get_place_y(2), Direction.LEFT, 3, 1, eTankImage, 1));
+                gameObjects.add(new EnemyTank(get_place_x(24), get_place_y(2), Direction.LEFT, 3, 1, eTankImage, 1));
+                gameObjects.add(new EnemyTank(get_place_x(2), get_place_y(15), Direction.LEFT, 3, 1, eTankImage, 1));
+                gameObjects.add(new EnemyTank(get_place_x(24), get_place_y(15), Direction.LEFT, 3, 1, eTankImage, 1));
+
             }
             break;
             case 4: {
                 play_zone = new int[]{SPACE, 2 * SPACE, 39 * SPACE, 16 * SPACE};
 
-                int[][] wall_list = new int[][]{{6, 3, 0, 10},
+                int[][] wall_list = new int[][]{{6, 4, 0, 8}, {12, 2, 1, 6}, {12, 13, 1, 6}, {20, 4, 1, 5}, {20, 11, 1, 5}, {27, 6, 0, 4},
                         {-1, -1, 0, 18}, {39, -1, 0, 18}, {0, -1, 1, 39}, {0, 16, 1, 39}};
 
                 for (int[] wall_info : wall_list) {
                     gameObjects.add(new Wall(get_place_x(wall_info[0]), get_place_y(wall_info[1]), wall_info[2] == 1, wall_info[3], brickImage));
                 }
-
-                playerTank.tp(3 * SPACE, 10 * SPACE, Direction.RIGHT);
-                for (int i = 0; i < 2; i++) {
-                    for (int j = 0; j < 3; j++) {
-                        gameObjects.add(new EnemyTank(get_place_x(35) + i * SPACE * 2, get_place_y(1) + j * SPACE * 2, Direction.LEFT, 1, 1, eTankImage, 1));
-                    }
-                }
-                for (int i = 0; i < 2; i++) {
-                    for (int j = 0; j < 3; j++) {
-                        gameObjects.add(new EnemyTank(get_place_x(35) + i * SPACE * 2, get_place_y(10) + j * SPACE * 2, Direction.LEFT, 1, 1, eTankImage, 1));
-                    }
-                }
+                playerTank.tp(get_place_x(3), get_place_x(6), Direction.RIGHT);
                 for (int i = 0; i < 2; i++) {
                     for (int j = 0; j < 4; j++) {
-                        gameObjects.add(new EnemyTank(get_place_x(31) + i * SPACE * 2, get_place_y(3) + j * SPACE * 3, Direction.LEFT, 3, 1, eTankImage, 1));
+                        gameObjects.add(new EnemyTank(get_place_x(31) + i * SPACE * 2, get_place_y(3) + j * SPACE * 3, Direction.LEFT, 1, 1, eTankImage, 1));
                     }
                 }
+                gameObjects.add(new Building(get_place_x(36), get_place_y(4), 5, baseImage,1,240));
+                gameObjects.add(new Building(get_place_x(36), get_place_y(11), 5, baseImage,1,240));
             }
             break;
         }

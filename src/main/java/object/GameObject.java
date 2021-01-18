@@ -91,7 +91,7 @@ public abstract class GameObject {
     }
 
     public Rectangle getRectangle() {
-        return new Rectangle((int) x - pmx[0], (int) y - pmy[0], width, height);
+        return new Rectangle((int) x - hitBox[2], (int) y - hitBox[3], hitBox[0], hitBox[1]);
     }
 
     abstract public void draw(Graphics g);

@@ -40,15 +40,17 @@ public class BulletAlter extends Bullet {
     public boolean collisionObject() {
         for(GameObject object:TankGame.getGameClient().getGameObjects()){
             if (object instanceof Animation)continue;
-            if((object instanceof Tank || object instanceof Bullet) && team==((MoveObject) object).getTeam())
+            if((object instanceof Tank || object instanceof Bullet || object instanceof Building) && team==((MoveObject) object).getTeam())
                 continue;
             if(hitten_target.contains(object))
                 continue;
             if(object instanceof Wall?new Rectangle((int) x - 3, (int) y - 3, 5, 5).intersects(object.getRectangle()):getRectangle().intersects(object.getRectangle())){
                 if(object.isAlive()) {
                     hitten_target.add(object);
-                    if(object instanceof Tank) {
-                        ((Tank) object).hitten(damage);
+                    if(object instanceof Tank || object instanceof Building) {
+                        if (object instanceof Tank)((Tank) object).hitten(damage);
+                        if (object instanceof Building)((Building) object).hitten(damage);
+
                         Tools.playAudio("hitting_alter.wav",0.2);
                         Animation hitting = new Animation((int)object.getX(),(int)object.getY(),TankGame.getGameClient().getImage("super_fire"),0,1);
                         TankGame.getGameClient().addGameObject(hitting);
